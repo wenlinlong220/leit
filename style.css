@@ -517,6 +517,44 @@ body {
     animation: pulse 1.5s infinite;
 }
 
+/* 单词发音按钮 */
+.word-audio-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #ff9f43, #feca57);
+    color: #333;
+    border: none;
+    padding: 3px 12px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    vertical-align: middle;
+    margin: 0 2px;
+}
+
+.word-audio-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(255, 159, 67, 0.35);
+}
+
+.word-audio-btn:active {
+    transform: scale(0.96);
+}
+
+.word-audio-btn.word-playing {
+    background: linear-gradient(135deg, #00b894, #55efc4);
+    animation: pulse-word 1s infinite;
+}
+
+@keyframes pulse-word {
+    0% { box-shadow: 0 0 0 0 rgba(0, 184, 148, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(0, 184, 148, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 184, 148, 0); }
+}
+
 /* 本地音频上传按钮 */
 .audio-upload-inline {
     display: inline-flex;

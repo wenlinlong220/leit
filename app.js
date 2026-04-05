@@ -45,6 +45,15 @@ function setupMarked() {
             </button>`;
         }
 
+        // [发音](单词) → 调用有道词典API播放单词发音
+        if (text === '发音') {
+            const word = href;
+            const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=1`;
+            return `<button class="word-audio-btn" data-word="${word}" data-src="${audioUrl}" onclick="playWordAudio(this)" title="点击听 ${word} 的发音">
+                🔈 ${word}
+            </button>`;
+        }
+
         // [老师解析] → 本地音频播放
         if (text === '老师解析') {
             state.teacherCounter++;
@@ -159,6 +168,26 @@ function playTeacherAudio(btn) {
     }).catch(err => {
         console.error('播放失败:', err);
         alert('音频播放失败，请上传本地音频文件。');
+    });
+}
+
+// ========== 单词发音播放（有道API） ==========
+function playWordAudio(btn) {
+    const src = btn.dataset.src;
+    const word = btn.dataset.word;
+
+    // 创建一个临时audio播放
+    const audio = new Audio(src);
+    btn.classList.add('word-playing');
+
+    audio.play().then(() => {
+        audio.addEventListener('ended', () => {
+            btn.classList.remove('word-playing');
+        });
+    }).catch(err => {
+        console.error('单词发音播放失败:', err);
+        btn.classList.remove('word-playing');
+        alert(`单词 "${word}" 发音播放失败，可能是网络问题。`);
     });
 }
 
