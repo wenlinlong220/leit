@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精听听力 - 雅思学习笔记</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Nav -->
+        <nav class="breadcrumb">
+            <a href="index.html">🏠 首页</a> <span>/</span> <span>🎧 精听听力</span>
+        </nav>
+
+        <header class="header">
+            <h1>🎧 精听听力</h1>
+            <p class="subtitle">选择一篇精听笔记开始复习</p>
+        </header>
+
+        <!-- Note List -->
+        <div class="note-list" id="listeningList">
+            <div class="placeholder">
+                <p>加载中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="notes-config.js"></script>
+    <script>
+        function renderListeningList() {
+            const container = document.getElementById('listeningList');
+            const notes = NOTES_CONFIG.listening;
+
+            if (notes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>还没有精听笔记</p>
+                        <p class="empty-tip">在 <code>notes-config.js</code> 中添加笔记配置，并将笔记文件放入 <code>note/</code> 文件夹</p>
+                    </div>`;
+                return;
+            }
+
+            // 按book分组
+            const groups = {};
+            notes.forEach(note => {
+                const book = note.book || '未分类';
+                if (!groups[book]) groups[book] = [];
+                groups[book].push(note);
+            });
+
+            let html = '';
+            for (const [book, items] of Object.entries(groups)) {
+                html += `<div class="note-group">
+                    <h3 class="group-title">📘 ${book}</h3>
+                    <div class="group-items">`;
+                items.forEach(note => {
+                    html += `
+                        <a href="player.html?file=${encodeURIComponent(note.file)}&title=${encodeURIComponent(note.title)}" class="note-item">
+                            <div class="note-item-info">
+                                <span class="note-item-title">${note.title}</span>
+                                <span class="note-item-meta">${note.test} · ${note.section}</span>
+                            </div>
+                            <div class="note-item-right">
+                                <span class="note-item-date">${note.date || ''}</span>
+                                <span class="note-item-arrow">→</span>
+                            </div>
+                        </a>`;
+                });
+                html += `</div></div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        renderListeningList();
+    </script>
+</body>
+</html>

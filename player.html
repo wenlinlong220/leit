@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精听笔记 - 雅思学习笔记</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Nav -->
+        <nav class="breadcrumb">
+            <a href="index.html">🏠 首页</a> <span>/</span>
+            <a href="listening.html">🎧 精听听力</a> <span>/</span>
+            <span id="pageTitle">笔记详情</span>
+        </nav>
+
+        <header class="header">
+            <h1 id="noteTitle">📝 加载中...</h1>
+        </header>
+
+        <!-- Global Audio Player (floating) -->
+        <div class="global-player" id="globalPlayer">
+            <div class="player-info">
+                <span class="player-label" id="playerLabel">准备就绪</span>
+            </div>
+            <div class="player-controls">
+                <audio id="globalAudio" controls></audio>
+            </div>
+            <button class="btn-close-player" id="closePlayer" title="关闭播放器">✕</button>
+        </div>
+
+        <!-- Markdown Content -->
+        <div class="content" id="markdownContent">
+            <div class="placeholder">
+                <div class="placeholder-icon">⏳</div>
+                <p>加载笔记中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

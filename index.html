@@ -3,74 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>听力笔记 - Markdown 播放器</title>
+    <title>雅思学习笔记</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Marked.js for Markdown rendering -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1>📝 听力笔记播放器</h1>
-            <p class="subtitle">点击听句子 · 听老师解析 · 高效复习</p>
+            <h1>📚 雅思学习笔记</h1>
+            <p class="subtitle">精听 · 阅读 · 写作 · 高效备考</p>
         </header>
 
-        <!-- Controls -->
-        <div class="controls">
-            <div class="file-loader">
-                <label for="mdFile" class="btn btn-primary">📂 导入 Markdown 笔记</label>
-                <input type="file" id="mdFile" accept=".md,.txt,.markdown" style="display:none">
-                <span class="file-name" id="fileName">未选择文件</span>
-            </div>
+        <!-- Category Cards -->
+        <div class="category-grid">
+            <!-- 精听听力 -->
+            <a href="listening.html" class="category-card card-listening">
+                <div class="card-icon">🎧</div>
+                <h2>精听听力</h2>
+                <p>逐句精听练习，标记易错点，提升听力能力</p>
+                <span class="card-arrow">→</span>
+            </a>
+
+            <!-- 阅读笔记 -->
+            <a href="reading.html" class="category-card card-reading">
+                <div class="card-icon">📖</div>
+                <h2>阅读笔记</h2>
+                <p>阅读理解笔记，积累词汇和长难句</p>
+                <span class="card-arrow">→</span>
+            </a>
+
+            <!-- 作文练习 -->
+            <a href="writing.html" class="category-card card-writing">
+                <div class="card-icon">✍️</div>
+                <h2>作文练习记录</h2>
+                <p>写作练习与批改记录，提升写作水平</p>
+                <span class="card-arrow">→</span>
+            </a>
         </div>
 
-        <!-- Global Audio Player (floating) -->
-        <div class="global-player" id="globalPlayer">
-            <div class="player-info">
-                <span class="player-label" id="playerLabel">准备就绪</span>
-            </div>
-            <div class="player-controls">
-                <audio id="globalAudio" controls></audio>
-            </div>
-            <button class="btn-close-player" id="closePlayer" title="关闭播放器">✕</button>
-        </div>
-
-        <!-- Markdown Content -->
-        <div class="content" id="markdownContent">
-            <div class="placeholder">
-                <div class="placeholder-icon">📄</div>
-                <p>请导入你的 Markdown 笔记文件，或者直接在下方编辑区编写</p>
-                <button class="btn btn-secondary" id="showEditor">✏️ 打开编辑器</button>
-            </div>
-        </div>
-
-        <!-- Editor (hidden by default) -->
-        <div class="editor-panel" id="editorPanel" style="display:none">
-            <div class="editor-header">
-                <h3>📝 编辑笔记</h3>
-                <div class="editor-actions">
-                    <button class="btn btn-success" id="renderBtn">▶ 渲染预览</button>
-                    <button class="btn btn-secondary" id="hideEditor">✕ 关闭编辑器</button>
-                </div>
-            </div>
-            <textarea id="mdEditor" placeholder="在这里粘贴或编写你的 Markdown 笔记...
-
-支持的特殊语法：
-1. [点击听](音频URL) - 点击直接播放句子
-2. [老师解析](音频URL) - 播放老师的语音解析
-3. ==高亮文字== - 标记重点词汇
-
-示例：
-- it does break but that's part of the fun
-- [点击听](https://example.com/audio.mp3)
-  *听混了*：fun和phone感觉很像
-- [老师解析](https://example.com/teacher.mp3)
-"></textarea>
-        </div>
-
+        <!-- Footer -->
+        <footer class="footer">
+            <p>💪 坚持每天练习，离目标更近一步</p>
+        </footer>
     </div>
-
-    <script src="app.js"></script>
 </body>
 </html>

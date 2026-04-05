@@ -1,46 +1,42 @@
 /**
- * 听力笔记播放器 - 核心逻辑
+ * 精听笔记播放器 - player.html 专用
  * 功能：
- * 1. Markdown 渲染（支持 ==高亮== 语法）
- * 2. [点击听](url) 在页面内嵌入iframe播放新东方页面，无需跳转
- * 3. [老师解析](url) 播放老师解析音频（本地上传）
- * 4. 支持上传本地音频绑定到按钮
+ * 1. 从 URL 参数读取笔记文件路径并加载
+ * 2. Markdown 渲染（支持 ==高亮== 语法）
+ * 3. [点击听](url) 在页面内嵌入 iframe 播放新东方页面
+ * 4. [老师解析](#) 上传本地音频播放老师解析
  */
 
 // ========== 状态管理 ==========
 const state = {
-    audioMap: {},        // 存储音频 btnId -> blob URL 的映射
-    currentBtn: null,    // 当前正在播放的按钮元素
-    audioCounter: 0,     // 音频计数器
-    teacherCounter: 0,   // 老师解析计数器
+    audioMap: {},
+    currentBtn: null,
+    audioCounter: 0,
+    teacherCounter: 0,
 };
 
 // ========== DOM 元素 ==========
-const dom = {
-    markdownContent: document.getElementById('markdownContent'),
-    mdFile: document.getElementById('mdFile'),
-    fileName: document.getElementById('fileName'),
-    globalPlayer: document.getElementById('globalPlayer'),
-    globalAudio: document.getElementById('globalAudio'),
-    playerLabel: document.getElementById('playerLabel'),
-    closePlayer: document.getElementById('closePlayer'),
-    showEditor: document.getElementById('showEditor'),
-    editorPanel: document.getElementById('editorPanel'),
-    mdEditor: document.getElementById('mdEditor'),
-    renderBtn: document.getElementById('renderBtn'),
-    hideEditor: document.getElementById('hideEditor'),
-};
+const dom = {};
+
+function initDom() {
+    dom.markdownContent = document.getElementById('markdownContent');
+    dom.globalPlayer = document.getElementById('globalPlayer');
+    dom.globalAudio = document.getElementById('globalAudio');
+    dom.playerLabel = document.getElementById('playerLabel');
+    dom.closePlayer = document.getElementById('closePlayer');
+    dom.noteTitle = document.getElementById('noteTitle');
+    dom.pageTitle = document.getElementById('pageTitle');
+}
 
 // ========== Marked.js 配置 ==========
 function setupMarked() {
     const renderer = new marked.Renderer();
 
-    // 自定义链接渲染
     renderer.link = function (token) {
         const href = token.href || '';
         const text = token.text || '';
 
-        // 【点击听】→ 内嵌iframe弹窗，直接在页面内加载新东方页面
+        // [点击听] → 内嵌 iframe 面板
         if (text === '点击听') {
             state.audioCounter++;
             const id = 'audio-btn-' + state.audioCounter;
@@ -49,7 +45,7 @@ function setupMarked() {
             </button>`;
         }
 
-        // 【老师解析】→ 本地音频播放
+        // [老师解析] → 本地音频播放
         if (text === '老师解析') {
             state.teacherCounter++;
             const id = 'teacher-btn-' + state.teacherCounter;
@@ -75,9 +71,7 @@ function setupMarked() {
 
 // ========== Markdown 预处理 ==========
 function preprocessMarkdown(md) {
-    // 处理 ==高亮== 语法 → <mark>高亮</mark>
-    md = md.replace(/==(.*?)==/g, '<mark>$1</mark>');
-    return md;
+    return md.replace(/==(.*?)==/g, '<mark>$1</mark>');
 }
 
 // ========== 渲染 Markdown ==========
@@ -89,7 +83,7 @@ function renderMarkdown(mdText) {
     dom.markdownContent.innerHTML = html;
 }
 
-// ========== 点击听 → 打开内嵌面板（iframe加载新东方页面） ==========
+// ========== 点击听 → 打开 iframe 面板 ==========
 function openListenPanel(btn) {
     const src = btn.dataset.src;
 
@@ -98,13 +92,10 @@ function openListenPanel(btn) {
         return;
     }
 
-    // 如果已经有打开的面板，先关闭
+    // 关闭已有面板
     const existing = document.getElementById('listen-panel');
-    if (existing) {
-        existing.remove();
-    }
+    if (existing) existing.remove();
 
-    // 创建内嵌播放面板
     const panel = document.createElement('div');
     panel.id = 'listen-panel';
     panel.className = 'listen-panel';
@@ -121,32 +112,23 @@ function openListenPanel(btn) {
         </div>
     `;
 
-    // 插入到按钮后面
     btn.closest('li')?.after(panel) || btn.parentElement.after(panel);
-
-    // 滚动到面板位置
     panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-    // 高亮当前按钮
     document.querySelectorAll('.audio-play-btn').forEach(b => b.classList.remove('active-btn'));
     btn.classList.add('active-btn');
 }
 
-// ========== 关闭听力面板 ==========
 function closeListenPanel() {
     const panel = document.getElementById('listen-panel');
-    if (panel) {
-        panel.remove();
-    }
+    if (panel) panel.remove();
     document.querySelectorAll('.audio-play-btn').forEach(b => b.classList.remove('active-btn'));
 }
 
-// ========== 老师解析 - 播放音频 ==========
+// ========== 老师解析播放 ==========
 function playTeacherAudio(btn) {
-    const src = btn.dataset.src;
     const label = '👨‍🏫 老师解析';
 
-    // 如果点击的是当前正在播放的按钮，暂停
     if (state.currentBtn === btn && !dom.globalAudio.paused) {
         dom.globalAudio.pause();
         btn.classList.remove('playing');
@@ -154,57 +136,33 @@ function playTeacherAudio(btn) {
         return;
     }
 
-    // 如果有其他按钮在播放，先停止
     if (state.currentBtn && state.currentBtn !== btn) {
         state.currentBtn.classList.remove('playing');
     }
 
     state.currentBtn = btn;
 
-    // 检查是否有本地绑定的音频
     const localSrc = state.audioMap[btn.id];
-    const audioSrc = localSrc || src;
+    const audioSrc = localSrc || btn.dataset.src;
 
     if (!audioSrc || audioSrc === '#') {
         alert('请先点击旁边的"上传解析音频"按钮，上传老师的解析音频文件');
         return;
     }
 
-    // 设置播放器
     dom.globalAudio.src = audioSrc;
     dom.playerLabel.textContent = label;
     dom.globalPlayer.classList.add('active');
 
-    // 播放
     dom.globalAudio.play().then(() => {
         btn.classList.add('playing');
     }).catch(err => {
         console.error('播放失败:', err);
-        alert('音频播放失败。请上传本地音频文件。');
+        alert('音频播放失败，请上传本地音频文件。');
     });
 }
 
-// ========== 音频播放结束事件 ==========
-dom.globalAudio.addEventListener('ended', () => {
-    if (state.currentBtn) {
-        state.currentBtn.classList.remove('playing');
-    }
-    dom.playerLabel.textContent = '播放完毕';
-});
-
-// ========== 关闭播放器 ==========
-dom.closePlayer.addEventListener('click', () => {
-    dom.globalAudio.pause();
-    dom.globalAudio.src = '';
-    dom.globalPlayer.classList.remove('active');
-    if (state.currentBtn) {
-        state.currentBtn.classList.remove('playing');
-        state.currentBtn = null;
-    }
-    dom.playerLabel.textContent = '准备就绪';
-});
-
-// ========== 绑定本地音频到按钮 ==========
+// ========== 绑定本地音频 ==========
 function bindLocalAudio(fileInput, btnId) {
     const file = fileInput.files[0];
     if (!file) return;
@@ -223,68 +181,69 @@ function bindLocalAudio(fileInput, btnId) {
             label.style.cursor = 'default';
         }
     }
-    console.log(`音频已绑定: ${btnId} -> ${file.name}`);
 }
-
-// ========== 文件导入 ==========
-dom.mdFile.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    dom.fileName.textContent = file.name;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        const mdText = event.target.result;
-        dom.mdEditor.value = mdText;
-        renderMarkdown(mdText);
-    };
-    reader.readAsText(file, 'UTF-8');
-});
-
-// ========== 编辑器相关 ==========
-dom.showEditor.addEventListener('click', () => {
-    dom.editorPanel.style.display = 'block';
-});
-
-dom.hideEditor.addEventListener('click', () => {
-    dom.editorPanel.style.display = 'none';
-});
-
-dom.renderBtn.addEventListener('click', () => {
-    const mdText = dom.mdEditor.value;
-    if (mdText.trim()) {
-        renderMarkdown(mdText);
-    }
-});
 
 // ========== 初始化 ==========
 function init() {
+    initDom();
     setupMarked();
 
-    // 加载示例内容（使用用户的剑16听力笔记格式）
-    const sampleMd = `
----
--  I wanted ==some== information about the workshops in the ==school holidays==.
-\t*不熟悉词组*：只注意到holidays，应该连着school一起
----
-- our ==Tiny== Engineers workshop is for four to five-year-olds.
-\t*单词不熟悉*：tiny下意识想成了tidy
----
--  For example, they work together to design a special ==cover== that goes round an egg, so that when it's inside they can drop it from a height and it doesn't break.
-\t*意思不理解*：that goes round an egg，goes around是环绕，此处相当于就是有一个壳子包围蛋
-\t*单词不熟悉*：cover的盖子的意思
----
--  it does break but that's part of the fun
-- [点击听](https://ieltscat.xdf.cn/intensive/intensive/1758/1/9)
-\t*听混了*：fun和phone感觉很像
-- [老师解析](#)
----
-`;
+    // 从 URL 参数获取笔记文件路径
+    const params = new URLSearchParams(window.location.search);
+    const file = params.get('file');
+    const title = params.get('title') || '精听笔记';
 
-    dom.mdEditor.value = sampleMd;
-    renderMarkdown(sampleMd);
+    // 设置标题
+    dom.noteTitle.textContent = '🎧 ' + title;
+    dom.pageTitle.textContent = title;
+    document.title = title + ' - 精听听力';
+
+    if (!file) {
+        dom.markdownContent.innerHTML = `
+            <div class="placeholder">
+                <div class="placeholder-icon">❌</div>
+                <p>未指定笔记文件</p>
+                <a href="listening.html" class="btn btn-primary">返回列表</a>
+            </div>`;
+        return;
+    }
+
+    // 加载笔记文件
+    fetch(file)
+        .then(r => {
+            if (!r.ok) throw new Error('文件不存在: ' + file);
+            return r.text();
+        })
+        .then(md => {
+            renderMarkdown(md);
+        })
+        .catch(err => {
+            dom.markdownContent.innerHTML = `
+                <div class="placeholder">
+                    <div class="placeholder-icon">❌</div>
+                    <p>加载失败: ${err.message}</p>
+                    <p class="empty-tip">请确认文件 <code>${file}</code> 存在</p>
+                    <br>
+                    <a href="listening.html" class="btn btn-primary">返回列表</a>
+                </div>`;
+        });
+
+    // 音频播放器事件
+    dom.globalAudio.addEventListener('ended', () => {
+        if (state.currentBtn) state.currentBtn.classList.remove('playing');
+        dom.playerLabel.textContent = '播放完毕';
+    });
+
+    dom.closePlayer.addEventListener('click', () => {
+        dom.globalAudio.pause();
+        dom.globalAudio.src = '';
+        dom.globalPlayer.classList.remove('active');
+        if (state.currentBtn) {
+            state.currentBtn.classList.remove('playing');
+            state.currentBtn = null;
+        }
+        dom.playerLabel.textContent = '准备就绪';
+    });
 }
 
-// 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', init);

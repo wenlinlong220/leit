@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作文练习 - 雅思学习笔记</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="index.html">🏠 首页</a> <span>/</span> <span>✍️ 作文练习</span>
+        </nav>
+
+        <header class="header">
+            <h1>✍️ 作文练习记录</h1>
+            <p class="subtitle">查看写作练习和批改记录</p>
+        </header>
+
+        <div class="note-list" id="writingList">
+            <div class="placeholder">
+                <p>加载中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="notes-config.js"></script>
+    <script>
+        function renderWritingList() {
+            const container = document.getElementById('writingList');
+            const notes = NOTES_CONFIG.writing;
+
+            if (notes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>还没有作文练习记录</p>
+                        <p class="empty-tip">在 <code>notes-config.js</code> 的 writing 数组中添加记录，<br>并将笔记文件放入 <code>note/</code> 文件夹</p>
+                    </div>`;
+                return;
+            }
+
+            let html = '<div class="note-group"><div class="group-items">';
+            notes.forEach(note => {
+                html += `
+                    <a href="viewer.html?file=${encodeURIComponent(note.file)}&title=${encodeURIComponent(note.title)}" class="note-item">
+                        <div class="note-item-info">
+                            <span class="note-item-title">${note.title}</span>
+                            <span class="note-item-meta">${note.type || ''} · ${note.topic || ''}</span>
+                        </div>
+                        <div class="note-item-right">
+                            <span class="note-item-date">${note.date || ''}</span>
+                            <span class="note-item-arrow">→</span>
+                        </div>
+                    </a>`;
+            });
+            html += '</div></div>';
+            container.innerHTML = html;
+        }
+        renderWritingList();
+    </script>
+</body>
+</html>

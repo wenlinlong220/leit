@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>笔记查看 - 雅思学习笔记</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="index.html">🏠 首页</a> <span>/</span>
+            <span id="pageTitle">笔记详情</span>
+        </nav>
+
+        <header class="header">
+            <h1 id="noteTitle">📝 加载中...</h1>
+        </header>
+
+        <div class="content" id="markdownContent">
+            <div class="placeholder">
+                <div class="placeholder-icon">⏳</div>
+                <p>加载笔记中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 预处理 Markdown（高亮语法）
+        function preprocessMarkdown(md) {
+            return md.replace(/==(.*?)==/g, '<mark>$1</mark>');
+        }
+
+        function init() {
+            const params = new URLSearchParams(window.location.search);
+            const file = params.get('file');
+            const title = params.get('title') || '笔记详情';
+
+            document.getElementById('noteTitle').textContent = '📝 ' + title;
+            document.getElementById('pageTitle').textContent = title;
+            document.title = title + ' - 雅思学习笔记';
+
+            if (!file) {
+                document.getElementById('markdownContent').innerHTML = `
+                    <div class="placeholder">
+                        <div class="placeholder-icon">❌</div>
+                        <p>未指定笔记文件</p>
+                    </div>`;
+                return;
+            }
+
+            fetch(file)
+                .then(r => {
+                    if (!r.ok) throw new Error('文件不存在');
+                    return r.text();
+                })
+                .then(md => {
+                    const processed = preprocessMarkdown(md);
+                    document.getElementById('markdownContent').innerHTML = marked.parse(processed);
+                })
+                .catch(err => {
+                    document.getElementById('markdownContent').innerHTML = `
+                        <div class="placeholder">
+                            <div class="placeholder-icon">❌</div>
+                            <p>加载失败: ${err.message}</p>
+                            <p class="empty-tip">请确认文件 <code>${file}</code> 存在</p>
+                        </div>`;
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
