@@ -27,9 +27,94 @@
     </div>
 
     <script>
-        // 预处理 Markdown（高亮语法）
+        let locateCounter = 0;
+
+        // 预处理 Markdown（高亮语法 + 定位句 + 替换词）
         function preprocessMarkdown(md) {
-            return md.replace(/==(.*?)==/g, '<mark>$1</mark>');
+            // ==高亮== 语法
+            md = md.replace(/==(.*?)==/g, '<mark>$1</mark>');
+
+            // :::exam-split 分栏布局（模拟机考：左边原文，右边题目）
+            md = md.replace(/:::exam-left\n([\s\S]*?):::end-left\n\n:::exam-right\n([\s\S]*?):::end-right/g, function(match, left, right) {
+                return '<div class="exam-split-container">' +
+                    '<div class="exam-panel exam-left">' +
+                        '<div class="exam-panel-header">📄 Reading Passage</div>' +
+                        '<div class="exam-panel-body">' + left + '</div>' +
+                    '</div>' +
+                    '<div class="exam-panel exam-right">' +
+                        '<div class="exam-panel-header">📝 Questions</div>' +
+                        '<div class="exam-panel-body">' + right + '</div>' +
+                    '</div>' +
+                '</div>';
+            });
+
+            // @@定位句@@ 语法：包裹在可折叠的蓝色定位句块中
+            // 定位句中可以包含 %%替换词%% 语法
+            md = md.replace(/@@([\s\S]*?)@@/g, function(match, content) {
+                locateCounter++;
+                const id = 'locate-' + locateCounter;
+                // 先处理替换词 %%...%%
+                const processedContent = content.replace(/%%([^%]+?)%%/g, 
+                    '<span class="replace-word" data-group="' + id + '">$1</span>');
+                return '<div class="locate-wrapper" id="' + id + '">' +
+                    '<div class="locate-buttons">' +
+                        '<button class="locate-toggle-btn" onclick="toggleLocate(\'' + id + '\')">' +
+                            '<span class="btn-icon">📍</span> 显示定位句' +
+                        '</button>' +
+                        '<button class="replace-toggle-btn" onclick="toggleReplace(\'' + id + '\')" style="display:none;">' +
+                            '<span class="btn-icon">🔍</span> 显示替换词' +
+                        '</button>' +
+                    '</div>' +
+                    '<div class="locate-content" style="display:none;">' +
+                        processedContent +
+                    '</div>' +
+                '</div>';
+            });
+
+            return md;
+        }
+
+        // 切换定位句显示/隐藏
+        function toggleLocate(id) {
+            const wrapper = document.getElementById(id);
+            const content = wrapper.querySelector('.locate-content');
+            const locateBtn = wrapper.querySelector('.locate-toggle-btn');
+            const replaceBtn = wrapper.querySelector('.replace-toggle-btn');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                locateBtn.innerHTML = '<span class="btn-icon">📍</span> 隐藏定位句';
+                locateBtn.classList.add('active');
+                replaceBtn.style.display = 'inline-flex';
+            } else {
+                content.style.display = 'none';
+                locateBtn.innerHTML = '<span class="btn-icon">📍</span> 显示定位句';
+                locateBtn.classList.remove('active');
+                replaceBtn.style.display = 'none';
+                // 同时隐藏替换词
+                const words = wrapper.querySelectorAll('.replace-word');
+                words.forEach(w => w.classList.remove('revealed'));
+                replaceBtn.innerHTML = '<span class="btn-icon">🔍</span> 显示替换词';
+                replaceBtn.classList.remove('active');
+            }
+        }
+
+        // 切换替换词高亮显示/隐藏
+        function toggleReplace(id) {
+            const wrapper = document.getElementById(id);
+            const replaceBtn = wrapper.querySelector('.replace-toggle-btn');
+            const words = wrapper.querySelectorAll('.replace-word');
+            
+            const anyRevealed = wrapper.querySelector('.replace-word.revealed');
+            if (anyRevealed) {
+                words.forEach(w => w.classList.remove('revealed'));
+                replaceBtn.innerHTML = '<span class="btn-icon">🔍</span> 显示替换词';
+                replaceBtn.classList.remove('active');
+            } else {
+                words.forEach(w => w.classList.add('revealed'));
+                replaceBtn.innerHTML = '<span class="btn-icon">🔍</span> 隐藏替换词';
+                replaceBtn.classList.add('active');
+            }
         }
 
         function init() {
@@ -56,6 +141,7 @@
                     return r.text();
                 })
                 .then(md => {
+                    locateCounter = 0;
                     const processed = preprocessMarkdown(md);
                     document.getElementById('markdownContent').innerHTML = marked.parse(processed);
                 })

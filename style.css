@@ -679,6 +679,183 @@ body {
     font-size: 14px;
 }
 
+/* ===== 机考分栏布局（左原文右题目） ===== */
+.exam-split-container {
+    display: flex;
+    gap: 0;
+    margin: 20px -35px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    min-height: 400px;
+    background: #fafafa;
+}
+
+.exam-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.exam-left {
+    border-right: 2px solid #e0e0e0;
+}
+
+.exam-panel-header {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.exam-left .exam-panel-header {
+    background: linear-gradient(135deg, #e8f0fe, #d2e3fc);
+    color: #1a73e8;
+}
+
+.exam-right .exam-panel-header {
+    background: linear-gradient(135deg, #fef3e0, #ffe0b2);
+    color: #e65100;
+}
+
+.exam-panel-body {
+    padding: 18px 20px;
+    overflow-y: auto;
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+.exam-left .exam-panel-body {
+    background: #fff;
+    color: #333;
+}
+
+.exam-right .exam-panel-body {
+    background: #fffdf7;
+    color: #333;
+}
+
+.exam-panel-body p {
+    margin-bottom: 10px;
+    text-indent: 0;
+}
+
+/* 分栏内的响应式 */
+@media (max-width: 768px) {
+    .exam-split-container {
+        flex-direction: column;
+        margin: 15px -15px;
+    }
+
+    .exam-left {
+        border-right: none;
+        border-bottom: 2px solid #e0e0e0;
+    }
+
+    .exam-panel-body {
+        max-height: 350px;
+    }
+}
+
+/* ===== 定位句和替换词交互样式 ===== */
+.locate-wrapper {
+    margin: 12px 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.locate-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.locate-toggle-btn,
+.replace-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: none;
+    padding: 5px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.25s;
+    vertical-align: middle;
+}
+
+.locate-toggle-btn {
+    background: #e8f0fe;
+    color: #1a73e8;
+}
+
+.locate-toggle-btn:hover {
+    background: #d2e3fc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
+}
+
+.locate-toggle-btn.active {
+    background: #1a73e8;
+    color: white;
+}
+
+.replace-toggle-btn {
+    background: #fef3e0;
+    color: #e65100;
+}
+
+.replace-toggle-btn:hover {
+    background: #ffe0b2;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(230, 81, 0, 0.2);
+}
+
+.replace-toggle-btn.active {
+    background: #e65100;
+    color: white;
+}
+
+.locate-content {
+    padding: 14px 18px;
+    background: #f0f7ff;
+    border-left: 4px solid #1a73e8;
+    border-radius: 0 8px 8px 0;
+    color: #1a73e8;
+    font-size: 14.5px;
+    line-height: 1.9;
+    margin-top: 6px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 替换词 - 默认下划线提示 */
+.replace-word {
+    position: relative;
+    border-bottom: 2px dashed #bbb;
+    padding-bottom: 1px;
+    transition: all 0.3s;
+}
+
+/* 替换词 - 高亮显示 */
+.replace-word.revealed {
+    background: linear-gradient(180deg, transparent 40%, #ffe082 40%);
+    border-bottom: 2px solid #e65100;
+    color: #bf360c;
+    font-weight: 600;
+    padding: 0 3px;
+    border-radius: 2px;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
     .container {

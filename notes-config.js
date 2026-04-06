@@ -41,14 +41,14 @@ const NOTES_CONFIG = {
     // ===== 阅读笔记 =====
     // 文件放在 note/reading/ 文件夹中
     reading: [
-        // {
-        //     file: "note/reading/read_C16_T1_P1",
-        //     title: "剑16 Test1 Passage1",
-        //     book: "剑桥雅思16",
-        //     test: "Test 1",
-        //     passage: "Passage 1",
-        //     date: "2026-04-05",
-        // },
+        {
+            file: "note/reading/课堂梳理_4_4.md",
+            title: "T/F/NG 判断题方法论",
+            book: "课堂讲义梳理",
+            test: "第三讲",
+            passage: "判断题",
+            date: "2026-04-04",
+        },
     ],
 
     // ===== 作文练习 =====
