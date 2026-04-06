@@ -687,7 +687,8 @@ body {
     border: 2px solid #e0e0e0;
     border-radius: 12px;
     overflow: hidden;
-    min-height: 400px;
+    min-height: 500px;
+    max-height: 80vh;
     background: #fafafa;
 }
 
@@ -708,6 +709,37 @@ body {
     font-weight: 700;
     letter-spacing: 0.5px;
     flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.exam-panel-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.exam-ctrl-btn {
+    background: rgba(255,255,255,0.3);
+    border: 1px solid rgba(255,255,255,0.5);
+    color: inherit;
+    padding: 3px 10px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.exam-ctrl-btn:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+.exam-ctrl-btn.active {
+    background: rgba(255,255,255,0.85);
+    color: #1a73e8;
+    font-weight: 700;
+    border-color: transparent;
 }
 
 .exam-left .exam-panel-header {
@@ -836,6 +868,19 @@ body {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-6px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* 定位句 - 在原文中高亮（分栏模式） */
+.locate-sentence {
+    transition: all 0.3s;
+}
+
+.locate-sentence.highlighted {
+    background: #e3f2fd;
+    border-left: 3px solid #1a73e8;
+    padding: 2px 4px;
+    border-radius: 0 4px 4px 0;
+    color: #0d47a1;
 }
 
 /* 替换词 - 默认下划线提示 */

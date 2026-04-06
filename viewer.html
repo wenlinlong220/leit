@@ -34,26 +34,38 @@
             // ==高亮== 语法
             md = md.replace(/==(.*?)==/g, '<mark>$1</mark>');
 
-            // :::exam-split 分栏布局（模拟机考：左边原文，右边题目）
+            // :::exam-split 分栏布局（模拟机考：左边原文，右边题目+解析）
             md = md.replace(/:::exam-left\n([\s\S]*?):::end-left\n\n:::exam-right\n([\s\S]*?):::end-right/g, function(match, left, right) {
+                // 左边原文中处理 [[定位句]] 和 %%替换词%%
+                let processedLeft = left.replace(/\[\[([\s\S]*?)\]\]/g, function(m, content) {
+                    const inner = content.replace(/%%([^%]+?)%%/g, '<span class="replace-word">$1</span>');
+                    return '<span class="locate-sentence">' + inner + '</span>';
+                });
+                // 处理左边原文中不在 [[]] 内的 %%替换词%%
+                processedLeft = processedLeft.replace(/%%([^%]+?)%%/g, '<span class="replace-word">$1</span>');
+
                 return '<div class="exam-split-container">' +
                     '<div class="exam-panel exam-left">' +
-                        '<div class="exam-panel-header">📄 Reading Passage</div>' +
-                        '<div class="exam-panel-body">' + left + '</div>' +
+                        '<div class="exam-panel-header">' +
+                            '<span>📄 Reading Passage</span>' +
+                            '<div class="exam-panel-controls">' +
+                                '<button class="exam-ctrl-btn" onclick="toggleAllLocate(this)" title="显示/隐藏定位句高亮">📍 定位句</button>' +
+                                '<button class="exam-ctrl-btn" onclick="toggleAllReplace(this)" title="显示/隐藏替换词高亮">🔍 替换词</button>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="exam-panel-body">' + processedLeft + '</div>' +
                     '</div>' +
                     '<div class="exam-panel exam-right">' +
-                        '<div class="exam-panel-header">📝 Questions</div>' +
+                        '<div class="exam-panel-header"><span>📝 Questions & Analysis</span></div>' +
                         '<div class="exam-panel-body">' + right + '</div>' +
                     '</div>' +
                 '</div>';
             });
 
-            // @@定位句@@ 语法：包裹在可折叠的蓝色定位句块中
-            // 定位句中可以包含 %%替换词%% 语法
+            // @@定位句@@ 语法（独立使用，非分栏模式）
             md = md.replace(/@@([\s\S]*?)@@/g, function(match, content) {
                 locateCounter++;
                 const id = 'locate-' + locateCounter;
-                // 先处理替换词 %%...%%
                 const processedContent = content.replace(/%%([^%]+?)%%/g, 
                     '<span class="replace-word" data-group="' + id + '">$1</span>');
                 return '<div class="locate-wrapper" id="' + id + '">' +
@@ -114,6 +126,36 @@
                 words.forEach(w => w.classList.add('revealed'));
                 replaceBtn.innerHTML = '<span class="btn-icon">🔍</span> 隐藏替换词';
                 replaceBtn.classList.add('active');
+            }
+        }
+
+        // 分栏模式：切换所有定位句高亮
+        function toggleAllLocate(btn) {
+            const container = btn.closest('.exam-split-container');
+            const sentences = container.querySelectorAll('.locate-sentence');
+            const isActive = btn.classList.contains('active');
+            
+            if (isActive) {
+                sentences.forEach(s => s.classList.remove('highlighted'));
+                btn.classList.remove('active');
+            } else {
+                sentences.forEach(s => s.classList.add('highlighted'));
+                btn.classList.add('active');
+            }
+        }
+
+        // 分栏模式：切换所有替换词高亮
+        function toggleAllReplace(btn) {
+            const container = btn.closest('.exam-split-container');
+            const words = container.querySelectorAll('.replace-word');
+            const isActive = btn.classList.contains('active');
+            
+            if (isActive) {
+                words.forEach(w => w.classList.remove('revealed'));
+                btn.classList.remove('active');
+            } else {
+                words.forEach(w => w.classList.add('revealed'));
+                btn.classList.add('active');
             }
         }
 
