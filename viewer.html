@@ -115,7 +115,7 @@
                     '<div class="quiz-items">' + questionsHtml + '</div>' +
                 '</div>';
 
-                const placeholder = '<!--QUIZ_BLOCK_' + quizBlocks.length + '-->';
+                const placeholder = '\n\nQUIZBLOCKPLACEHOLDER' + quizBlocks.length + '\n\n';
                 quizBlocks.push(html);
                 quizCounter++;
                 return placeholder;
@@ -404,7 +404,8 @@
                         html = html.replace('<!--EXAM_SPLIT_' + i + '-->', block);
                     });
                     quizBlocks.forEach((block, i) => {
-                        html = html.replace('<!--QUIZ_BLOCK_' + i + '-->', block);
+                        // marked 可能把占位符包在 <p> 标签里，用正则替换
+                        html = html.replace(new RegExp('<p>\\s*QUIZBLOCKPLACEHOLDER' + i + '\\s*<\\/p>|QUIZBLOCKPLACEHOLDER' + i), block);
                     });
                     document.getElementById('markdownContent').innerHTML = html;
 
