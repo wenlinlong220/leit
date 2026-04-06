@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>笔记查看 - 雅思学习笔记</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -38,14 +38,7 @@
             md = md.replace(/==(.*?)==/g, '<mark>$1</mark>');
 
             // :::quiz 自测题块
-            // 调试：打印是否能找到 :::quiz
-            if (md.indexOf(':::quiz') !== -1) {
-                console.log('[quiz] 找到 :::quiz 块，位置:', md.indexOf(':::quiz'));
-            } else {
-                console.warn('[quiz] 未找到 :::quiz 块！');
-            }
             md = md.replace(/:::quiz[\r\n]+([\s\S]*?):::end-quiz/g, function(match, content) {
-                console.log('[quiz] 正则匹配成功，内容行数:', content.split('\n').length);
                 const lines = content.split(/\r?\n/).filter(l => l.trim());
                 let questionsHtml = '';
                 let qIndex = 0;
@@ -122,10 +115,11 @@
                     '<div class="quiz-items">' + questionsHtml + '</div>' +
                 '</div>';
 
-                const placeholder = '<!--QUIZ_BLOCK_' + quizBlocks.length + '-->';
+                // 用 <div> 标签作占位符，marked 会原样保留 HTML 块
+                const idx = quizBlocks.length;
                 quizBlocks.push(html);
                 quizCounter++;
-                return placeholder;
+                return '\n\n<div id="quiz-placeholder-' + idx + '"></div>\n\n';
             });
 
             // :::exam-split 分栏布局
@@ -410,10 +404,17 @@
                     splitBlocks.forEach((block, i) => {
                         html = html.replace('<!--EXAM_SPLIT_' + i + '-->', block);
                     });
-                    quizBlocks.forEach((block, i) => {
-                        html = html.replace('<!--QUIZ_BLOCK_' + i + '-->', block);
-                    });
                     document.getElementById('markdownContent').innerHTML = html;
+
+                    // 用 DOM 替换 quiz 占位符（避免 marked 对字符串的干扰）
+                    quizBlocks.forEach((block, i) => {
+                        const placeholder = document.getElementById('quiz-placeholder-' + i);
+                        if (placeholder) {
+                            const tmp = document.createElement('div');
+                            tmp.innerHTML = block;
+                            placeholder.replaceWith(tmp.firstChild);
+                        }
+                    });
 
                     // 恢复星标状态
                     document.querySelectorAll('.quiz-item').forEach(item => {
