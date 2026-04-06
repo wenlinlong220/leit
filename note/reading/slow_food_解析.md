@@ -176,7 +176,8 @@ Some years ago, a network of farmers in the USA volunteered to take part in a na
 | `a network of farmers` | 一群农民 | network 表示"网络/群体" |
 | `hatch` | 孵化 | v. |
 | `volunteer to do` | 自愿做某事 | |
-| `raise` | 抚育、饲养 | 注意与 rise 区分 |
+| `raise` | 抚育、饲养 | |
+| `dismay` | 担忧 |
 
 **词缀规律：**
 
