@@ -145,8 +145,8 @@ Biodiversity is a term commonly associated with discussions of threats to wild s
 - **No less important**: 同样重要（双重否定表示肯定，语气更强）。
 - **Reduced Relative Clause**: 在 `species` 后面省略了作宾语的关系代词 `that/which`。
 
-----
-
+---
+###
 **原句：**
 Some years ago, a network of farmers in the USA volunteered to take part in a national Slow Food project. The project was for the farmers to raise a total of 5,000 turkeys from eggs which had been selected from four varieties of endangered turkey. The farmers had to begin by hatching the eggs they had been supplied with, then raising the young turkeys to adults. They were promised a guaranteed price per pound for the adult turkeys.
 ---
