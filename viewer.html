@@ -37,90 +37,79 @@
             // ==高亮== 语法
             md = md.replace(/==(.*?)==/g, '<mark>$1</mark>');
 
-            // :::quiz 自测题块
-            md = md.replace(/:::quiz[\r\n]+([\s\S]*?):::end-quiz/g, function(match, content) {
-                const lines = content.split(/\r?\n/).filter(l => l.trim());
-                let questionsHtml = '';
-                let qIndex = 0;
+            // :::quiz 自测题块 — 逐行解析，不依赖正则跨行匹配
+            const mdLines = md.split('\n');
+            const mdOut = [];
+            let inQuiz = false;
+            let quizLines = [];
 
-                lines.forEach(line => {
+            function buildQuizHtml(qLines) {
+                let questionsHtml = '';
+                let qIdx = 0;
+                const blockId = 'quiz-block-' + quizCounter;
+                qLines.forEach(function(line) {
                     line = line.trim();
                     if (!line) return;
-
-                    // [fill] 音频URL | 句子含{{答案}} | 备注
                     if (line.startsWith('[fill]')) {
-                        const parts = line.slice(6).split('|').map(s => s.trim());
+                        const parts = line.slice(6).split('|').map(function(s){ return s.trim(); });
                         const audioUrl = parts[0] || '';
                         const sentence = parts[1] || '';
                         const note = parts[2] || '';
-                        qIndex++;
-                        const qId = 'quiz-' + quizCounter + '-' + qIndex;
-
-                        // 提取答案，构建带输入框的句子
-                        const answers = [];
+                        qIdx++;
+                        const qId = 'quiz-' + quizCounter + '-' + qIdx;
                         const sentenceHtml = sentence.replace(/\{\{([^}]+)\}\}/g, function(m, ans) {
-                            answers.push(ans.trim().toLowerCase());
-                            const w = Math.max(ans.length * 14, 80);
+                            const w = Math.max(ans.trim().length * 14, 80);
                             return '<input type="text" class="quiz-input" data-answer="' + ans.trim().toLowerCase() + '" style="width:' + w + 'px" placeholder="___" oninput="checkQuizInput(this)">';
                         });
-
                         questionsHtml += '<div class="quiz-item" id="' + qId + '" data-type="fill">' +
-                            '<div class="quiz-item-header">' +
-                                '<span class="quiz-num">Q' + qIndex + '</span>' +
-                                '<span class="quiz-type-tag">填空</span>' +
-                                '<button class="quiz-star-btn" onclick="toggleStar(\'' + qId + '\')" title="标记重点">☆</button>' +
-                            '</div>' +
+                            '<div class="quiz-item-header"><span class="quiz-num">Q' + qIdx + '</span><span class="quiz-type-tag">填空</span><button class="quiz-star-btn" onclick="toggleStar(\'' + qId + '\')" title="标记重点">☆</button></div>' +
                             '<div class="quiz-sentence">' + sentenceHtml + '</div>' +
                             (audioUrl ? '<div class="quiz-audio"><audio controls src="' + audioUrl + '"></audio></div>' : '') +
                             (note ? '<div class="quiz-note">💡 ' + note + '</div>' : '') +
-                            '<div class="quiz-feedback" style="display:none;"></div>' +
-                        '</div>';
-
-                    // [translate] 中文 | 英文答案 | 备注
+                            '<div class="quiz-feedback" style="display:none;"></div></div>';
                     } else if (line.startsWith('[translate]')) {
-                        const parts = line.slice(11).split('|').map(s => s.trim());
+                        const parts = line.slice(11).split('|').map(function(s){ return s.trim(); });
                         const chinese = parts[0] || '';
                         const answer = parts[1] || '';
                         const note = parts[2] || '';
-                        qIndex++;
-                        const qId = 'quiz-' + quizCounter + '-' + qIndex;
-
+                        qIdx++;
+                        const qId = 'quiz-' + quizCounter + '-' + qIdx;
                         questionsHtml += '<div class="quiz-item" id="' + qId + '" data-type="translate">' +
-                            '<div class="quiz-item-header">' +
-                                '<span class="quiz-num">Q' + qIndex + '</span>' +
-                                '<span class="quiz-type-tag translate-tag">汉译英</span>' +
-                                '<button class="quiz-star-btn" onclick="toggleStar(\'' + qId + '\')" title="标记重点">☆</button>' +
-                            '</div>' +
+                            '<div class="quiz-item-header"><span class="quiz-num">Q' + qIdx + '</span><span class="quiz-type-tag translate-tag">汉译英</span><button class="quiz-star-btn" onclick="toggleStar(\'' + qId + '\')" title="标记重点">☆</button></div>' +
                             '<div class="quiz-chinese">' + chinese + '</div>' +
                             '<textarea class="quiz-textarea" placeholder="请用英文填写..." rows="2" data-answer="' + answer.toLowerCase() + '"></textarea>' +
-                            '<div class="quiz-actions">' +
-                                '<button class="quiz-check-btn" onclick="checkTranslate(\'' + qId + '\')">✔ 核对答案</button>' +
-                                '<button class="quiz-show-btn" onclick="showAnswer(\'' + qId + '\', \'' + answer.replace(/'/g, "\\'") + '\')">👁 显示答案</button>' +
-                            '</div>' +
+                            '<div class="quiz-actions"><button class="quiz-check-btn" onclick="checkTranslate(\'' + qId + '\')">✔ 核对答案</button><button class="quiz-show-btn" onclick="showAnswer(\'' + qId + '\', \'' + answer.replace(/'/g, "\\'") + '\')">👁 显示答案</button></div>' +
                             (note ? '<div class="quiz-note">💡 ' + note + '</div>' : '') +
-                            '<div class="quiz-feedback" style="display:none;"></div>' +
-                        '</div>';
+                            '<div class="quiz-feedback" style="display:none;"></div></div>';
                     }
                 });
+                return '<div class="quiz-block" id="' + blockId + '">' +
+                    '<div class="quiz-block-header"><span>📝 自测题</span><div class="quiz-block-actions">' +
+                    '<button class="quiz-reset-btn" onclick="resetQuiz(\'' + blockId + '\')">🔄 重置</button>' +
+                    '<button class="quiz-star-filter-btn" onclick="filterStarred(\'' + blockId + '\')" title="只显示重点题">⭐ 重点</button></div></div>' +
+                    '<div class="quiz-items">' + questionsHtml + '</div></div>';
+            }
 
-                const blockId = 'quiz-block-' + quizCounter;
-                const html = '<div class="quiz-block" id="' + blockId + '">' +
-                    '<div class="quiz-block-header">' +
-                        '<span>📝 自测题</span>' +
-                        '<div class="quiz-block-actions">' +
-                            '<button class="quiz-reset-btn" onclick="resetQuiz(\'' + blockId + '\')">🔄 重置</button>' +
-                            '<button class="quiz-star-filter-btn" onclick="filterStarred(\'' + blockId + '\')" title="只显示重点题">⭐ 重点</button>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="quiz-items">' + questionsHtml + '</div>' +
-                '</div>';
-
-                // 用 <div> 标签作占位符，marked 会原样保留 HTML 块
-                const idx = quizBlocks.length;
-                quizBlocks.push(html);
-                quizCounter++;
-                return '\n\n<div id="quiz-placeholder-' + idx + '"></div>\n\n';
-            });
+            for (let i = 0; i < mdLines.length; i++) {
+                const rawLine = mdLines[i];
+                const trimmed = rawLine.trim();
+                if (trimmed === ':::quiz') {
+                    inQuiz = true;
+                    quizLines = [];
+                } else if (trimmed === ':::end-quiz') {
+                    inQuiz = false;
+                    const html = buildQuizHtml(quizLines);
+                    const idx = quizBlocks.length;
+                    quizBlocks.push(html);
+                    quizCounter++;
+                    mdOut.push('<div id="quiz-placeholder-' + idx + '"></div>');
+                } else if (inQuiz) {
+                    quizLines.push(rawLine);
+                } else {
+                    mdOut.push(rawLine);
+                }
+            }
+            md = mdOut.join('\n');
 
             // :::exam-split 分栏布局
             md = md.replace(/:::exam-left\r?\n([\s\S]*?):::end-left[\r?\n\s]*:::exam-right\r?\n([\s\S]*?):::end-right/g, function(match, left, right) {
