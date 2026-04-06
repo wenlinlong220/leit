@@ -40,7 +40,7 @@ It may seem strange that taking pleasure in eating could be a strategy for prese
 ---
 
 **Q3: The genes of heritage plants may be of vital importance to modern plant breeders.**
-- 定位词：genes, heritage plants, plant breeders
+- 定位词：genes(上下义), heritage plants, plant breeders
 - 考点词：`vital importance`（至关重要）
 - 原文：plant breeders will ==need== the ==disease-resistant genes== which can be obtained from ==heritage plant varieties==
 - 分析：`vital importance` ↔ `need`（需要 = 重要），`may be` 表示可能性 → 原文用了虚拟条件句（when...proves unable），也表示可能性
@@ -117,3 +117,55 @@ It may seem strange that taking pleasure in eating could be a strategy for prese
 - 分析：`liked the taste` ↔ `very well received`（非常受欢迎）
 - ✅ 答案：**consumers**
 :::end-right
+
+
+
+
+
+### 句子语法分析
+
+**原句：**
+Biodiversity is a term commonly associated with discussions of threats to wild species, but according to Slow Food the biodiversity of the domesticated species people have depended on for centuries is no less important.
+
+
+#### 1. 句子主干 (Main Structure)
+这是一个由 **but** 连接的并列复合句，通过对比展示两个层面的“生物多样性”。
+- **前半句：** Biodiversity (主) + is (系) + a term (表).
+- **后半句：** ...the biodiversity (主) + is (系) + no less important (表).
+
+#### 2. 成分拆解 (Component Breakdown)
+1. **[commonly associated with...]**: 过去分词短语，作**后置定语**修饰 *term*。
+2. **[according to Slow Food]**: 状语，交代观点来源。
+3. **[of the domesticated species]**: 介词短语，作**定语**修饰 *biodiversity*。
+4. **[(that) people have depended on for centuries]**: 定语从句（省略了关系词），修饰 *species*。
+   - *Logic: People have depended on these species for centuries.*
+
+#### 3. 核心考点 (Key Points)
+- **Domesticated species**: 驯化/家养物种（对比前半句的 wild species）。
+- **No less important**: 同样重要（双重否定表示肯定，语气更强）。
+- **Reduced Relative Clause**: 在 `species` 后面省略了作宾语的关系代词 `that/which`。
+
+**地道翻译：**
+生物多样性是一个通常与“野生动物威胁”讨论相关的术语；但根据“慢食运动”的观点，人类赖以生存数个世纪的“家养物种”的生物多样性也同样重要。
+----
+
+**原句：**
+Some years ago, a network of farmers in the USA volunteered to take part in a national Slow Food project. The project was for the farmers to raise a total of 5,000 turkeys from eggs which had been selected from four varieties of endangered turkey. The farmers had to begin by hatching the eggs they had been supplied with, then raising the young turkeys to adults. They were promised a guaranteed price per pound for the adult turkeys.
+---
+#### 分析
+volunteer to do 志愿做...
+raise v.抚育
+begin在这里翻译成首先
+hatch v.孵化
+raising the young turkeys to adults把他们抚养大（不是把他们抚养给成年人）
+They were promised a guaranteed price per pound for the adult turkeys.他们被告知，每磅成年火鸡被给予保证的价格
+---
+### 语料
+- no less importance <=>  be restricted to 前者是代表差不多重要，后者代表局限于..（有明显倾向性）
+- vital important 至关重要  <=> need 
+- a network of farmers 一群农民
+- hatch v.孵化
+- `-ism` 结尾的词是主义/制度/概念，不可能是人.environmentalism 环保主义、capitalism 资本主义
+- `-ist` environmentalist 环保人士、capitalist 资本家
+
+
