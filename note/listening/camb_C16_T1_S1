@@ -74,88 +74,18 @@
 
 ## 自测题
 
-### 一、词汇填空
-
-根据语境，填入正确的单词或词组：
-
-1. I wanted ________ information about the workshops in the ________ holidays.
-   （提示：some / school）
-
-2. Our ________ Engineers workshop is for four to five-year-olds.
-   （提示：注意不是 tidy）
-
-3. They design a special ________ that goes round an egg so it doesn't break when dropped.
-   （提示：盖子/外壳）
-
-4. It does break, but that's ________ ________ ________ ________.
-   （提示：4个词，表示"这也是乐趣的一部分"）
-
-5. Is there any ________ for her to do that?
-   （提示：机会）
-
-6. But they're learning all the time ________ ________ ________ having fun.
-   （提示：3个词，表示"同时也"）
-
-7. So would you like to ________ Lydia and Carly now?
-   （提示：注册/报名）
-
----
-
-### 二、选择题：听音辨析
-
-**Q1：** 下列哪个词与 `tiny` 发音最相近，容易混淆？
-- A. tidy
-- B. tiny
-- C. tightly
-- D. timely
-
-**Q2：** 下列哪个词与 `fun` 发音容易混淆？
-- A. fan
-- B. phone
-- C. fine
-- D. fond
-
-**Q3：** `as well as` 在口语中容易被误听为？
-- A. as well
-- B. as we as
-- C. as worse as
-- D. as well if
-
-**Q4：** `they do` 在连读中容易被误听为？
-- A. they'll do
-- B. they'd do
-- C. may do
-- D. the do
-
----
-
-### 三、句意理解
-
-**Q1：** `that goes round an egg` 中的 `goes round` 是什么意思？
-
-> 参考答案：go round = go around（环绕），整句意思是"那个盖子/外壳围绕鸡蛋一圈"，即包裹住鸡蛋。
-
-**Q2：** `I wouldn't mind doing that myself!` 表达什么含义？
-
-> 参考答案：`wouldn't mind doing` = 非常乐意做……（字面是"不介意做"，实际表达积极兴趣）。
-
-**Q3：** `in the shape of a human` 和题目中的 `humanoid` 是什么关系？
-
-> 参考答案：同义替换。`in the shape of a human`（人形的）= `humanoid`（类人的/人形的）。这是听力中常见的同义替换出题方式。
-
----
-
-### 四、连读/弱读练习
-
-指出下列句子中的连读或弱读现象：
-
-1. `need it` → 连读：\_\_\_\_
-2. `up past the station` → 连读：\_\_\_\_
-3. `and technique` → 弱读：\_\_\_\_（d 几乎不发音）
-4. `can't miss it` → 注意：\_\_\_\_（t 容易听漏）
-
-> 参考答案：
-> 1. `need-it`（d 与 i 连读）
-> 2. `up-past`（p 与 p 相连，前一个 p 略省）
-> 3. `and` 中的 d 弱化/省略
-> 4. `can't` 的 t 在英式发音中常被省略，听起来像 `can`
+:::quiz
+[fill] https://ieltscat.xdf.cn/intensive/intensive/1758/1/1 | I wanted {{some}} information about the workshops in the {{school}} holidays. | school holidays 是固定词组，不要漏掉 school
+[fill] https://ieltscat.xdf.cn/intensive/intensive/1758/1/2 | Our {{Tiny}} Engineers workshop is for four to five-year-olds. | tiny ≠ tidy，注意发音区别
+[fill] https://ieltscat.xdf.cn/intensive/intensive/1758/1/7 | They design a special {{cover}} that goes round an egg, so that when it's inside they can drop it from a height and it doesn't break. | cover = 盖子/外壳，goes round = 环绕
+[fill] https://ieltscat.xdf.cn/intensive/intensive/1758/1/9 | It does break but that's {{part}} of the {{fun}}. | fun 和 phone 发音容易混淆
+[fill] https://ieltscat.xdf.cn/intensive/intensive/1758/1/11 | Is there any {{opportunity}} for her to do that? | any 不要听成 early
+[fill] https://ieltscat.xdf.cn/intensive/intensive/1758/1/15 | But they're learning all the time {{as well as}} having fun. | as well as = 同时也，不是 "as we as"
+[fill] https://ieltscat.xdf.cn/intensive/intensive/1758/2/19 | Now Carly has just had her seventh birthday, so {{presumably}} she'd be in a different group? | presumably = 大概，推测
+[fill] https://ieltscat.xdf.cn/intensive/intensive/1758/2/27 | We're there to help if they {{need it}}, but they learn from one another too. | need it 连读：d-it
+[fill] https://ieltscat.xdf.cn/intensive/intensive/1758/2/34 | They also build a robot in the {{shape}} of a human, and they {{decorate}} it and program it so that it can move its arms and legs. | shape = 人形，对应题目中 humanoid
+[fill] https://ieltscat.xdf.cn/intensive/intensive/1758/2/50 | So would you like to {{enrol}} Lydia and Carly now? | enrol = 注册/报名
+[translate] 我很乐意自己也来参加！ | I wouldn't mind doing that myself! | wouldn't mind doing = 非常乐意做……
+[translate] 他们在建筑物10A——门上有个大标志，你不会错过的，那是在Fradstone工业园区。 | They're in building 10A – there's a big sign on the door, you can't miss it, and that's in Fradstone Industrial Estate. | can't 的 t 容易听漏
+[translate] 当然，那是他们可以放到手机上带回家展示给朋友看的东西。 | And of course, that's something they can put on their phone and take home to show all their friends. | put on their phone = 放到手机上
+:::end-quiz

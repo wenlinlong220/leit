@@ -28,25 +28,107 @@
 
     <script>
         let locateCounter = 0;
+        let quizCounter = 0;
         const splitBlocks = [];
+        const quizBlocks = [];
 
-        // 预处理 Markdown（高亮语法 + 定位句 + 替换词）
+        // ===== 预处理 Markdown =====
         function preprocessMarkdown(md) {
             // ==高亮== 语法
             md = md.replace(/==(.*?)==/g, '<mark>$1</mark>');
 
-            // :::exam-split 分栏布局（模拟机考：左边原文，右边题目+解析）
-            // 兼容 \r\n 和 \n 换行，提取为占位符避免被 marked 破坏
+            // :::quiz 自测题块
+            md = md.replace(/:::quiz\r?\n([\s\S]*?):::end-quiz/g, function(match, content) {
+                const lines = content.split(/\r?\n/).filter(l => l.trim());
+                let questionsHtml = '';
+                let qIndex = 0;
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (!line) return;
+
+                    // [fill] 音频URL | 句子含{{答案}} | 备注
+                    if (line.startsWith('[fill]')) {
+                        const parts = line.slice(6).split('|').map(s => s.trim());
+                        const audioUrl = parts[0] || '';
+                        const sentence = parts[1] || '';
+                        const note = parts[2] || '';
+                        qIndex++;
+                        const qId = 'quiz-' + quizCounter + '-' + qIndex;
+
+                        // 提取答案，构建带输入框的句子
+                        const answers = [];
+                        const sentenceHtml = sentence.replace(/\{\{([^}]+)\}\}/g, function(m, ans) {
+                            answers.push(ans.trim().toLowerCase());
+                            const w = Math.max(ans.length * 14, 80);
+                            return '<input type="text" class="quiz-input" data-answer="' + ans.trim().toLowerCase() + '" style="width:' + w + 'px" placeholder="___" oninput="checkQuizInput(this)">';
+                        });
+
+                        questionsHtml += '<div class="quiz-item" id="' + qId + '" data-type="fill">' +
+                            '<div class="quiz-item-header">' +
+                                '<span class="quiz-num">Q' + qIndex + '</span>' +
+                                '<span class="quiz-type-tag">填空</span>' +
+                                '<button class="quiz-star-btn" onclick="toggleStar(\'' + qId + '\')" title="标记重点">☆</button>' +
+                            '</div>' +
+                            '<div class="quiz-sentence">' + sentenceHtml + '</div>' +
+                            (audioUrl ? '<div class="quiz-audio"><audio controls src="' + audioUrl + '"></audio></div>' : '') +
+                            (note ? '<div class="quiz-note">💡 ' + note + '</div>' : '') +
+                            '<div class="quiz-feedback" style="display:none;"></div>' +
+                        '</div>';
+
+                    // [translate] 中文 | 英文答案 | 备注
+                    } else if (line.startsWith('[translate]')) {
+                        const parts = line.slice(11).split('|').map(s => s.trim());
+                        const chinese = parts[0] || '';
+                        const answer = parts[1] || '';
+                        const note = parts[2] || '';
+                        qIndex++;
+                        const qId = 'quiz-' + quizCounter + '-' + qIndex;
+
+                        questionsHtml += '<div class="quiz-item" id="' + qId + '" data-type="translate">' +
+                            '<div class="quiz-item-header">' +
+                                '<span class="quiz-num">Q' + qIndex + '</span>' +
+                                '<span class="quiz-type-tag translate-tag">汉译英</span>' +
+                                '<button class="quiz-star-btn" onclick="toggleStar(\'' + qId + '\')" title="标记重点">☆</button>' +
+                            '</div>' +
+                            '<div class="quiz-chinese">' + chinese + '</div>' +
+                            '<textarea class="quiz-textarea" placeholder="请用英文填写..." rows="2" data-answer="' + answer.toLowerCase() + '"></textarea>' +
+                            '<div class="quiz-actions">' +
+                                '<button class="quiz-check-btn" onclick="checkTranslate(\'' + qId + '\')">✔ 核对答案</button>' +
+                                '<button class="quiz-show-btn" onclick="showAnswer(\'' + qId + '\', \'' + answer.replace(/'/g, "\\'") + '\')">👁 显示答案</button>' +
+                            '</div>' +
+                            (note ? '<div class="quiz-note">💡 ' + note + '</div>' : '') +
+                            '<div class="quiz-feedback" style="display:none;"></div>' +
+                        '</div>';
+                    }
+                });
+
+                const blockId = 'quiz-block-' + quizCounter;
+                const html = '<div class="quiz-block" id="' + blockId + '">' +
+                    '<div class="quiz-block-header">' +
+                        '<span>📝 自测题</span>' +
+                        '<div class="quiz-block-actions">' +
+                            '<button class="quiz-reset-btn" onclick="resetQuiz(\'' + blockId + '\')">🔄 重置</button>' +
+                            '<button class="quiz-star-filter-btn" onclick="filterStarred(\'' + blockId + '\')" title="只显示重点题">⭐ 重点</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="quiz-items">' + questionsHtml + '</div>' +
+                '</div>';
+
+                const placeholder = '<!--QUIZ_BLOCK_' + quizBlocks.length + '-->';
+                quizBlocks.push(html);
+                quizCounter++;
+                return placeholder;
+            });
+
+            // :::exam-split 分栏布局
             md = md.replace(/:::exam-left\r?\n([\s\S]*?):::end-left[\r?\n\s]*:::exam-right\r?\n([\s\S]*?):::end-right/g, function(match, left, right) {
-                // 左边原文中处理 [[定位句]] 和 %%替换词%%
                 let processedLeft = left.replace(/\[\[([\s\S]*?)\]\]/g, function(m, content) {
                     const inner = content.replace(/%%([^%]+?)%%/g, '<span class="replace-word">$1</span>');
                     return '<span class="locate-sentence">' + inner + '</span>';
                 });
-                // 处理左边原文中不在 [[]] 内的 %%替换词%%
                 processedLeft = processedLeft.replace(/%%([^%]+?)%%/g, '<span class="replace-word">$1</span>');
                 
-                // 用 marked 分别渲染左右内容
                 const leftHtml = marked.parse(processedLeft);
                 const rightHtml = marked.parse(right);
 
@@ -72,7 +154,7 @@
                 return placeholder;
             });
 
-            // @@定位句@@ 语法（独立使用，非分栏模式）
+            // @@定位句@@ 语法
             md = md.replace(/@@([\s\S]*?)@@/g, function(match, content) {
                 locateCounter++;
                 const id = 'locate-' + locateCounter;
@@ -96,7 +178,141 @@
             return md;
         }
 
-        // 切换定位句显示/隐藏
+        // ===== 自测题功能 =====
+
+        // 实时检查填空题输入
+        function checkQuizInput(input) {
+            const answer = input.dataset.answer.trim().toLowerCase();
+            const userVal = input.value.trim().toLowerCase();
+            if (userVal === '') {
+                input.className = 'quiz-input';
+                return;
+            }
+            if (userVal === answer) {
+                input.className = 'quiz-input correct';
+            } else {
+                input.className = 'quiz-input';
+            }
+            // 检查整题所有空是否都填对
+            const item = input.closest('.quiz-item');
+            const allInputs = item.querySelectorAll('.quiz-input');
+            const allCorrect = Array.from(allInputs).every(inp => 
+                inp.value.trim().toLowerCase() === inp.dataset.answer.trim().toLowerCase()
+            );
+            if (allCorrect && Array.from(allInputs).every(inp => inp.value.trim() !== '')) {
+                item.classList.add('all-correct');
+                const fb = item.querySelector('.quiz-feedback');
+                fb.textContent = '✅ 全部正确！';
+                fb.style.display = 'block';
+                fb.className = 'quiz-feedback correct';
+            } else {
+                item.classList.remove('all-correct');
+                const fb = item.querySelector('.quiz-feedback');
+                fb.style.display = 'none';
+            }
+        }
+
+        // 核对翻译题答案（模糊匹配）
+        function checkTranslate(qId) {
+            const item = document.getElementById(qId);
+            const textarea = item.querySelector('.quiz-textarea');
+            const answer = item.querySelector('.quiz-textarea').dataset.answer;
+            const userVal = textarea.value.trim().toLowerCase();
+            const fb = item.querySelector('.quiz-feedback');
+
+            if (!userVal) {
+                fb.textContent = '请先输入答案';
+                fb.style.display = 'block';
+                fb.className = 'quiz-feedback hint';
+                return;
+            }
+
+            // 关键词匹配：提取答案中的关键词（忽略冠词、介词等虚词）
+            const stopwords = new Set(['a','an','the','is','are','was','were','of','in','on','at','to','for','and','or','but','it','that','this','i','they','we','you','he','she','by','with','from','as','be','been','being','have','has','had','do','does','did','will','would','can','could','should','may','might']);
+            const answerWords = answer.split(/\s+/).filter(w => w && !stopwords.has(w.replace(/[^a-z]/g, '')));
+            const userWords = new Set(userVal.split(/\s+/).map(w => w.replace(/[^a-z]/g, '')));
+            const matched = answerWords.filter(w => userWords.has(w.replace(/[^a-z]/g, '')));
+            const score = Math.round(matched.length / answerWords.length * 100);
+
+            if (score >= 80) {
+                fb.innerHTML = '✅ 很好！关键词匹配 ' + score + '%<br><small>参考答案：' + item.querySelector('.quiz-textarea').dataset.answer + '</small>';
+                fb.className = 'quiz-feedback correct';
+            } else if (score >= 50) {
+                fb.innerHTML = '🟡 接近！关键词匹配 ' + score + '%<br><small>参考答案：' + item.querySelector('.quiz-textarea').dataset.answer + '</small>';
+                fb.className = 'quiz-feedback partial';
+            } else {
+                fb.innerHTML = '❌ 差距较大，关键词匹配 ' + score + '%<br><small>参考答案：' + item.querySelector('.quiz-textarea').dataset.answer + '</small>';
+                fb.className = 'quiz-feedback wrong';
+            }
+            fb.style.display = 'block';
+        }
+
+        // 显示答案
+        function showAnswer(qId, answer) {
+            const item = document.getElementById(qId);
+            const fb = item.querySelector('.quiz-feedback');
+            fb.innerHTML = '👁 参考答案：<strong>' + answer + '</strong>';
+            fb.style.display = 'block';
+            fb.className = 'quiz-feedback hint';
+        }
+
+        // 星标切换
+        function toggleStar(qId) {
+            const item = document.getElementById(qId);
+            const btn = item.querySelector('.quiz-star-btn');
+            const key = 'star_' + qId + '_' + location.pathname;
+            if (item.classList.contains('starred')) {
+                item.classList.remove('starred');
+                btn.textContent = '☆';
+                localStorage.removeItem(key);
+            } else {
+                item.classList.add('starred');
+                btn.textContent = '⭐';
+                localStorage.setItem(key, '1');
+            }
+        }
+
+        // 只显示重点题
+        function filterStarred(blockId) {
+            const block = document.getElementById(blockId);
+            const btn = block.querySelector('.quiz-star-filter-btn');
+            const items = block.querySelectorAll('.quiz-item');
+            const isFiltered = btn.classList.contains('active');
+
+            if (isFiltered) {
+                items.forEach(item => item.style.display = '');
+                btn.classList.remove('active');
+                btn.textContent = '⭐ 重点';
+            } else {
+                items.forEach(item => {
+                    item.style.display = item.classList.contains('starred') ? '' : 'none';
+                });
+                btn.classList.add('active');
+                btn.textContent = '📋 全部';
+            }
+        }
+
+        // 重置题目
+        function resetQuiz(blockId) {
+            const block = document.getElementById(blockId);
+            block.querySelectorAll('.quiz-input').forEach(inp => {
+                inp.value = '';
+                inp.className = 'quiz-input';
+            });
+            block.querySelectorAll('.quiz-textarea').forEach(ta => {
+                ta.value = '';
+            });
+            block.querySelectorAll('.quiz-feedback').forEach(fb => {
+                fb.style.display = 'none';
+                fb.textContent = '';
+            });
+            block.querySelectorAll('.quiz-item').forEach(item => {
+                item.classList.remove('all-correct');
+            });
+        }
+
+        // ===== 定位句 / 替换词功能 =====
+
         function toggleLocate(id) {
             const wrapper = document.getElementById(id);
             const content = wrapper.querySelector('.locate-content');
@@ -113,7 +329,6 @@
                 locateBtn.innerHTML = '<span class="btn-icon">📍</span> 显示定位句';
                 locateBtn.classList.remove('active');
                 replaceBtn.style.display = 'none';
-                // 同时隐藏替换词
                 const words = wrapper.querySelectorAll('.replace-word');
                 words.forEach(w => w.classList.remove('revealed'));
                 replaceBtn.innerHTML = '<span class="btn-icon">🔍</span> 显示替换词';
@@ -121,7 +336,6 @@
             }
         }
 
-        // 切换替换词高亮显示/隐藏
         function toggleReplace(id) {
             const wrapper = document.getElementById(id);
             const replaceBtn = wrapper.querySelector('.replace-toggle-btn');
@@ -139,36 +353,23 @@
             }
         }
 
-        // 分栏模式：切换所有定位句高亮
         function toggleAllLocate(btn) {
             const container = btn.closest('.exam-split-container');
             const sentences = container.querySelectorAll('.locate-sentence');
             const isActive = btn.classList.contains('active');
-            
-            if (isActive) {
-                sentences.forEach(s => s.classList.remove('highlighted'));
-                btn.classList.remove('active');
-            } else {
-                sentences.forEach(s => s.classList.add('highlighted'));
-                btn.classList.add('active');
-            }
+            sentences.forEach(s => s.classList.toggle('highlighted', !isActive));
+            btn.classList.toggle('active', !isActive);
         }
 
-        // 分栏模式：切换所有替换词高亮
         function toggleAllReplace(btn) {
             const container = btn.closest('.exam-split-container');
             const words = container.querySelectorAll('.replace-word');
             const isActive = btn.classList.contains('active');
-            
-            if (isActive) {
-                words.forEach(w => w.classList.remove('revealed'));
-                btn.classList.remove('active');
-            } else {
-                words.forEach(w => w.classList.add('revealed'));
-                btn.classList.add('active');
-            }
+            words.forEach(w => w.classList.toggle('revealed', !isActive));
+            btn.classList.toggle('active', !isActive);
         }
 
+        // ===== 初始化 =====
         function init() {
             const params = new URLSearchParams(window.location.search);
             const file = params.get('file');
@@ -194,14 +395,27 @@
                 })
                 .then(md => {
                     locateCounter = 0;
+                    quizCounter = 0;
                     splitBlocks.length = 0;
+                    quizBlocks.length = 0;
                     const processed = preprocessMarkdown(md);
                     let html = marked.parse(processed);
-                    // 把分栏占位符替换回实际 HTML
                     splitBlocks.forEach((block, i) => {
                         html = html.replace('<!--EXAM_SPLIT_' + i + '-->', block);
                     });
+                    quizBlocks.forEach((block, i) => {
+                        html = html.replace('<!--QUIZ_BLOCK_' + i + '-->', block);
+                    });
                     document.getElementById('markdownContent').innerHTML = html;
+
+                    // 恢复星标状态
+                    document.querySelectorAll('.quiz-item').forEach(item => {
+                        const key = 'star_' + item.id + '_' + location.pathname;
+                        if (localStorage.getItem(key)) {
+                            item.classList.add('starred');
+                            item.querySelector('.quiz-star-btn').textContent = '⭐';
+                        }
+                    });
                 })
                 .catch(err => {
                     document.getElementById('markdownContent').innerHTML = `
