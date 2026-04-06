@@ -49,6 +49,14 @@ const NOTES_CONFIG = {
             passage: "判断题",
             date: "2026-04-04",
         },
+        {
+            file: "note/reading/slow_food_解析.md",
+            title: "The Slow Food Organization 全题解析",
+            book: "阅读练习",
+            test: "P1",
+            passage: "Slow Food",
+            date: "2026-04-06",
+        },
     ],
 
     // ===== 作文练习 =====
