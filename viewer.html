@@ -28,6 +28,7 @@
 
     <script>
         let locateCounter = 0;
+        const splitBlocks = [];
 
         // 预处理 Markdown（高亮语法 + 定位句 + 替换词）
         function preprocessMarkdown(md) {
@@ -35,7 +36,8 @@
             md = md.replace(/==(.*?)==/g, '<mark>$1</mark>');
 
             // :::exam-split 分栏布局（模拟机考：左边原文，右边题目+解析）
-            md = md.replace(/:::exam-left\n([\s\S]*?):::end-left\n\n:::exam-right\n([\s\S]*?):::end-right/g, function(match, left, right) {
+            // 兼容 \r\n 和 \n 换行，提取为占位符避免被 marked 破坏
+            md = md.replace(/:::exam-left\r?\n([\s\S]*?):::end-left[\r?\n\s]*:::exam-right\r?\n([\s\S]*?):::end-right/g, function(match, left, right) {
                 // 左边原文中处理 [[定位句]] 和 %%替换词%%
                 let processedLeft = left.replace(/\[\[([\s\S]*?)\]\]/g, function(m, content) {
                     const inner = content.replace(/%%([^%]+?)%%/g, '<span class="replace-word">$1</span>');
@@ -43,8 +45,12 @@
                 });
                 // 处理左边原文中不在 [[]] 内的 %%替换词%%
                 processedLeft = processedLeft.replace(/%%([^%]+?)%%/g, '<span class="replace-word">$1</span>');
+                
+                // 用 marked 分别渲染左右内容
+                const leftHtml = marked.parse(processedLeft);
+                const rightHtml = marked.parse(right);
 
-                return '<div class="exam-split-container">' +
+                const html = '<div class="exam-split-container">' +
                     '<div class="exam-panel exam-left">' +
                         '<div class="exam-panel-header">' +
                             '<span>📄 Reading Passage</span>' +
@@ -53,13 +59,17 @@
                                 '<button class="exam-ctrl-btn" onclick="toggleAllReplace(this)" title="显示/隐藏替换词高亮">🔍 替换词</button>' +
                             '</div>' +
                         '</div>' +
-                        '<div class="exam-panel-body">' + processedLeft + '</div>' +
+                        '<div class="exam-panel-body">' + leftHtml + '</div>' +
                     '</div>' +
                     '<div class="exam-panel exam-right">' +
                         '<div class="exam-panel-header"><span>📝 Questions & Analysis</span></div>' +
-                        '<div class="exam-panel-body">' + right + '</div>' +
+                        '<div class="exam-panel-body">' + rightHtml + '</div>' +
                     '</div>' +
                 '</div>';
+                
+                const placeholder = '<!--EXAM_SPLIT_' + splitBlocks.length + '-->';
+                splitBlocks.push(html);
+                return placeholder;
             });
 
             // @@定位句@@ 语法（独立使用，非分栏模式）
@@ -184,8 +194,14 @@
                 })
                 .then(md => {
                     locateCounter = 0;
+                    splitBlocks.length = 0;
                     const processed = preprocessMarkdown(md);
-                    document.getElementById('markdownContent').innerHTML = marked.parse(processed);
+                    let html = marked.parse(processed);
+                    // 把分栏占位符替换回实际 HTML
+                    splitBlocks.forEach((block, i) => {
+                        html = html.replace('<!--EXAM_SPLIT_' + i + '-->', block);
+                    });
+                    document.getElementById('markdownContent').innerHTML = html;
                 })
                 .catch(err => {
                     document.getElementById('markdownContent').innerHTML = `
