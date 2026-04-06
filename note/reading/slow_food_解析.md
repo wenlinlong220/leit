@@ -151,12 +151,12 @@ Biodiversity is a term commonly associated with discussions of threats to wild s
 Some years ago, a network of farmers in the USA volunteered to take part in a national Slow Food project. The project was for the farmers to raise a total of 5,000 turkeys from eggs which had been selected from four varieties of endangered turkey. The farmers had to begin by hatching the eggs they had been supplied with, then raising the young turkeys to adults. They were promised a guaranteed price per pound for the adult turkeys.
 ---
 #### 分析
-volunteer to do 志愿做...
-raise v.抚育
-begin在这里翻译成首先
-hatch v.孵化
-raising the young turkeys to adults把他们抚养大（不是把他们抚养给成年人）
-They were promised a guaranteed price per pound for the adult turkeys.他们被告知，每磅成年火鸡被给予保证的价格
+- volunteer to do 志愿做...
+- raise v.抚育
+- begin在这里翻译成首先
+- hatch v.孵化
+- raising the young turkeys to adults把他们抚养大（不是把他们抚养给成年人）
+- They were promised a guaranteed price per pound for the adult turkeys.他们被告知，每磅成年火鸡被给予保证的价格
 ---
 ### 语料
 - no less importance <=>  be restricted to 前者是代表差不多重要，后者代表局限于..（有明显倾向性）
