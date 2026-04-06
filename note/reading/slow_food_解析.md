@@ -145,8 +145,6 @@ Biodiversity is a term commonly associated with discussions of threats to wild s
 - **No less important**: 同样重要（双重否定表示肯定，语气更强）。
 - **Reduced Relative Clause**: 在 `species` 后面省略了作宾语的关系代词 `that/which`。
 
-**地道翻译：**
-生物多样性是一个通常与“野生动物威胁”讨论相关的术语；但根据“慢食运动”的观点，人类赖以生存数个世纪的“家养物种”的生物多样性也同样重要。
 ----
 
 **原句：**
