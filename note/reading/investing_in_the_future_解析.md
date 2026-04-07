@@ -131,10 +131,10 @@ On the financial side, the University's Vice-Chancellor, Stuart McCutcheon, expl
 | 题号 | 错误类型 | 核心教训 |
 |------|----------|----------|
 | Q1 ❌ | NOT GIVEN → FALSE | 看到"first/最早"要找有无更早反例，有则 FALSE |
-| Q3 ❌ | NOT GIVEN → TRUE | 同义替换不是陷阱，要识别（first gift = original philanthropist） |
-| Q8 ❌ | TRUE → FALSE | "a single" 与 "wide range of" 直接矛盾；individuals 是复数且只是其中之一 |
+| Q3 ❌ | NOT GIVEN → TRUE | 同义替换不是陷阱，要识别（first gift 由 original philanthropist得到）。之前认为original修饰的人就不管了，实际上这里相当于说他是第一个捐赠xx大学的人，换言之就是第一次被捐赠在...时间 |
+| Q8 ❌ | TRUE → FALSE | "a single" 与 "wide range of" 直接矛盾；individuals 是复数且只是其中之一，看到individual就下意识和single对应了 |
 | Q11 ❌ | communities → overseas | both A and B 结构要读完整；确认空格对应哪个群体（graduates → alumni → overseas） |
-| Q13 ❌ | support → target | 同段多个名词时结合题目修饰词判断（financial target 不是 financial support） |
+| Q13 ❌ | support → target | 同段多个名词时结合题目修饰词判断（financial target 不是 financial support）.文章中的target那句话实际上就是一个转述 |
 
 ---
 
@@ -142,7 +142,7 @@ On the financial side, the University's Vice-Chancellor, Stuart McCutcheon, expl
 
 ### 句一：第一段核心难句
 
-**原���：**
+**原句：**
 
 This has been true from some of the oldest universities such as Bologna, Oxford and Cambridge in the twelfth century, to relative newcomers like the universities of Harvard and Yale in the seventeenth century.
 
@@ -178,8 +178,21 @@ The University is investing considerable time and energy in devising new methods
 
 ---
 
+### 句三：
+
+**原句：**
+
+ It is intended as a drive to secure support for the whole University, with a focus on generating funds to recruit, support and retain the very best staff for the University.
+
+ 词汇：intend v.打算，想要
 ## 语言点
 
-*（这里留给你自己补充！）*
+1. belief n.信念，相信，观点
+2. philanthropy n.慈善
+3. state <=> goverment n.政府
+4. discontinued <=> close v.停止
+5. __chose__ to work"（主动选择），原文说 "__tended to be recruited__"（被招募，被动语态）。
+6. seek => 过去式 sought v.寻找
+7. graduates（= alumni）, alumni n.校友，毕业生
 
 
