@@ -57,6 +57,14 @@ const NOTES_CONFIG = {
             passage: "Slow Food",
             date: "2026-04-06",
         },
+        {
+            file: "note/reading/investing_in_the_future_解析.md",
+            title: "Investing in the Future 全题解析",
+            book: "阅读练习",
+            test: "P1",
+            passage: "Investing in the Future",
+            date: "2026-04-07",
+        },
     ],
 
     // ===== 作文练习 =====
