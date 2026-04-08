@@ -73,6 +73,14 @@ const NOTES_CONFIG = {
             passage: "Investing in the Future",
             date: "2026-04-07",
         },
+        {
+            file: "note/reading/The Constant Evolution of the Humble Tomato.md",
+            title: "The Constant Evolution of the Humble Tomato 全题解析",
+            book: "阅读练习",
+            test: "P2",
+            passage: "The Humble Tomato",
+            date: "2026-04-08",
+        },
     ],
 
     // ===== 作文练习 =====
