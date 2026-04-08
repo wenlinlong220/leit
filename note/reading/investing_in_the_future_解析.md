@@ -185,14 +185,23 @@ The University is investing considerable time and energy in devising new methods
  It is intended as a drive to secure support for the whole University, with a focus on generating funds to recruit, support and retain the very best staff for the University.
 
  词汇：intend v.打算，想要
+---
+### 句四：
+
+**原句：**
+
+Their belief in the value of higher learning ==is echoed by== the growing number of philanthropists *whose gifts have helped ==transform== the University of Auckland, the largest university in New Zealand*.
+
+这块应该是一个从句，描述这些慈善家，他们的礼物帮助大学转型
 ## 语言点
 
 1. belief n.信念，相信，观点
-2. philanthropy n.慈善
+2. ==philanthropy== n.慈善
 3. state <=> goverment n.政府
 4. discontinued <=> close v.停止
 5. __chose__ to work"（主动选择），原文说 "__tended to be recruited__"（被招募，被动语态）。
 6. seek => 过去式 sought v.寻找
 7. graduates（= alumni）, alumni n.校友，毕业生
-
-
+8. merchant n.商人
+9. twelfth n.第十二个
+10. 
