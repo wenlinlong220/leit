@@ -204,4 +204,3 @@ Their belief in the value of higher learning ==is echoed by== the growing number
 7. graduates（= alumni）, alumni n.校友，毕业生
 8. merchant n.商人
 9. twelfth n.第十二个
-10. 

@@ -81,6 +81,14 @@ const NOTES_CONFIG = {
             passage: "The Humble Tomato",
             date: "2026-04-08",
         },
+        {
+            file: "note/reading/cuneiform_解析.md",
+            title: "An Important Language Development 全题解析",
+            book: "阅读练习",
+            test: "P1",
+            passage: "Cuneiform 楔形文字",
+            date: "2026-04-09",
+        },
     ],
 
     // ===== 作文练习 =====
