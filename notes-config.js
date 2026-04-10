@@ -89,6 +89,14 @@ const NOTES_CONFIG = {
             passage: "Cuneiform 楔形文字",
             date: "2026-04-09",
         },
+        {
+            file: "note/reading/tasmanian_tiger_解析.md",
+            title: "The Tasmanian Tiger 全题解析",
+            book: "阅读练习",
+            test: "P2",
+            passage: "Tasmanian Tiger 袋狼",
+            date: "2026-04-10",
+        },
     ],
 
     // ===== 作文练习 =====
