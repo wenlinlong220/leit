@@ -105,6 +105,14 @@ const NOTES_CONFIG = {
             passage: "Tasmanian Tiger 袋狼",
             date: "2026-04-10",
         },
+        {
+            file: "note/reading/净水器.md",
+            title: "New filter promises clean water for millions 全题解析",
+            book: "阅读练习",
+            test: "P2",
+            passage: "New filter promises clean water for millions",
+            date: "2026-04-16",
+        },
     ],
 
     // ===== 作文练习 =====
