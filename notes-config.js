@@ -42,7 +42,7 @@ const NOTES_CONFIG = {
             test: "Test 3",
             section: "Section 1",
             date: "2026-04-10",
-        }
+        },
         {
             file: "note/listening/camb_C14_T3_S3",
             title: "剑14 Test3 Section3",
