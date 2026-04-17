@@ -121,6 +121,14 @@ const NOTES_CONFIG = {
             passage: "New filter promises clean water for millions",
             date: "2026-04-16",
         },
+        {
+            file: "note/reading/眼盲症.md",
+            title: "Eye Disease 全题解析",
+            book: "阅读练习",
+            test: "P2",
+            passage: "Sorry—who are you?",
+            date: "2026-04-17",
+        }
     ],
 
     // ===== 作文练习 =====
