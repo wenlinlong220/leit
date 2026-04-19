@@ -5,8 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>笔记查看 - 雅思学习笔记</title>
     <link rel="stylesheet" href="style.css">
-    <!-- v2026.04.07 -->
+    <!-- v2026.04.19 -->
     <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    <style>
+        /* ===== 显示控制工具栏 ===== */
+        .viewer-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #eee;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .viewer-toolbar-label {
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-right: 2px;
+        }
+        .vt-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.22s;
+            user-select: none;
+        }
+        .vt-chip-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.55;
+            flex-shrink: 0;
+        }
+        .vt-chip.on .vt-chip-dot { opacity: 1; }
+
+        /* 解析 - 琥珀色 */
+        .vt-chip-analysis { background:#fff8e1; color:#e65100; border-color:#ffe082; }
+        .vt-chip-analysis:hover { background:#fff3cd; border-color:#ffca28; }
+        .vt-chip-analysis.on { background:#e65100; color:#fff; border-color:#e65100; }
+
+        /* 答案 - 翠绿色 */
+        .vt-chip-answer { background:#e8f5e9; color:#2e7d32; border-color:#a5d6a7; }
+        .vt-chip-answer:hover { background:#c8e6c9; border-color:#66bb6a; }
+        .vt-chip-answer.on { background:#2e7d32; color:#fff; border-color:#2e7d32; }
+
+        /* 词汇中文 - 蓝色 */
+        .vt-chip-vocab { background:#e3f2fd; color:#1565c0; border-color:#90caf9; }
+        .vt-chip-vocab:hover { background:#bbdefb; border-color:#42a5f5; }
+        .vt-chip-vocab.on { background:#1565c0; color:#fff; border-color:#1565c0; }
+
+        /* ===== :::analysis 解析块 ===== */
+        .analysis-block {
+            background: #fff8e1;
+            border: 1px dashed #ffca28;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 10px 0;
+            font-size: 14px;
+            line-height: 1.85;
+            color: #5d4037;
+            position: relative;
+            transition: filter 0.25s;
+        }
+        .analysis-block-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #e65100;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        /* 隐藏态 */
+        .analysis-block.vt-hidden {
+            filter: blur(5px);
+            user-select: none;
+            cursor: pointer;
+        }
+        .analysis-block.vt-hidden::after {
+            content: '🔒 点击查看解析';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            font-size: 13px;
+            font-weight: 700;
+            color: #e65100;
+            background: rgba(255,255,255,0.95);
+            padding: 5px 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* ===== :::answer 答案块 ===== */
+        .answer-block {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #e8f5e9;
+            border: 2px solid #a5d6a7;
+            border-radius: 8px;
+            padding: 4px 14px;
+            margin: 4px 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a2e;
+            position: relative;
+            cursor: default;
+            transition: all 0.25s;
+        }
+        .answer-block-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #2e7d32;
+            background: rgba(46,125,50,0.12);
+            padding: 1px 7px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+        /* 隐藏态 */
+        .answer-block.vt-hidden {
+            background: #444;
+            border-color: #444;
+            color: transparent;
+            cursor: pointer;
+            user-select: none;
+        }
+        .answer-block.vt-hidden .answer-block-label {
+            color: transparent;
+            background: transparent;
+        }
+        .answer-block.vt-hidden::after {
+            content: '点击揭示答案';
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%,-50%);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* ===== [zh]...[/zh] 行内中文 ===== */
+        .vocab-zh {
+            color: #1565c0;
+            font-weight: 500;
+            font-size: 0.95em;
+            border-radius: 4px;
+            padding: 0 3px;
+            transition: all 0.25s;
+            position: relative;
+            display: inline-block;
+        }
+        .vocab-zh.vt-hidden {
+            color: transparent;
+            background: #bbb;
+            border-radius: 4px;
+            cursor: pointer;
+            user-select: none;
+            min-width: 2em;
+        }
+        .vocab-zh.vt-hidden::after {
+            content: '?';
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%,-50%);
+            color: #777;
+            font-size: 13px;
+            font-weight: 700;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -19,6 +198,23 @@
             <h1 id="noteTitle">📝 加载中...</h1>
         </header>
 
+        <!-- 显示控制工具栏（内容加载后显示） -->
+        <div class="viewer-toolbar" id="viewerToolbar" style="display:none;">
+            <span class="viewer-toolbar-label">显示控制：</span>
+            <div class="vt-chip vt-chip-analysis" id="vtChipAnalysis" onclick="vtToggle('analysis')">
+                <span class="vt-chip-dot"></span>
+                <span id="vtLabelAnalysis">解析 已隐藏</span>
+            </div>
+            <div class="vt-chip vt-chip-answer" id="vtChipAnswer" onclick="vtToggle('answer')">
+                <span class="vt-chip-dot"></span>
+                <span id="vtLabelAnswer">答案 已隐藏</span>
+            </div>
+            <div class="vt-chip vt-chip-vocab" id="vtChipVocab" onclick="vtToggle('vocab')">
+                <span class="vt-chip-dot"></span>
+                <span id="vtLabelVocab">词汇中文 已隐藏</span>
+            </div>
+        </div>
+
         <div class="content" id="markdownContent">
             <div class="placeholder">
                 <div class="placeholder-icon">⏳</div>
@@ -30,6 +226,9 @@
     <script>
         let locateCounter = 0;
         let quizCounter = 0;
+        let analysisCounter = 0;
+        let answerCounter = 0;
+        let vocabZhCounter = 0;
         const splitBlocks = [];
         const quizBlocks = [];
 
@@ -38,12 +237,21 @@
             // ==高亮== 语法
             md = md.replace(/==(.*?)==/g, '<mark>$1</mark>');
 
-            // :::quiz 自测题块 — 逐行解析，不依赖正则跨行匹配
+            // ===== 新增：逐行解析多种块语法 =====
+            // 支持：:::quiz / :::analysis / :::answer，以及行内 [zh]...[/zh]
             const mdLines = md.split('\n');
             const mdOut = [];
+
             let inQuiz = false;
             let quizLines = [];
 
+            let inAnalysis = false;
+            let analysisLines = [];
+
+            let inAnswer = false;
+            let answerLines = [];
+
+            // ---------- 构建 quiz 块 HTML（原有逻辑不变）----------
             function buildQuizHtml(qLines) {
                 let questionsHtml = '';
                 let qIdx = 0;
@@ -91,12 +299,38 @@
                     '<div class="quiz-items">' + questionsHtml + '</div></div>';
             }
 
+            // ---------- 构建 analysis 块 HTML ----------
+            function buildAnalysisHtml(lines) {
+                const id = 'vt-analysis-' + analysisCounter;
+                const content = lines.join('\n');
+                // 渲染内部 markdown
+                const innerHtml = marked.parse(content);
+                analysisCounter++;
+                return '<div class="analysis-block vt-hidden" id="' + id + '" onclick="vtRevealSingle(\'analysis\',\'' + id + '\')">' +
+                    '<div class="analysis-block-label">🔍 解析</div>' +
+                    innerHtml +
+                    '</div>';
+            }
+
+            // ---------- 构建 answer 块 HTML ----------
+            function buildAnswerHtml(lines) {
+                const id = 'vt-answer-' + answerCounter;
+                const text = lines.join(' ').trim();
+                answerCounter++;
+                return '<div class="answer-block vt-hidden" id="' + id + '" onclick="vtRevealSingle(\'answer\',\'' + id + '\')">' +
+                    '<span class="answer-block-label">✅ 答案</span>' +
+                    '<span class="answer-block-text">' + text + '</span>' +
+                    '</div>';
+            }
+
+            // ---------- 逐行处理 ----------
             for (let i = 0; i < mdLines.length; i++) {
                 const rawLine = mdLines[i];
                 const trimmed = rawLine.trim();
+
+                // --- quiz ---
                 if (trimmed === ':::quiz') {
-                    inQuiz = true;
-                    quizLines = [];
+                    inQuiz = true; quizLines = [];
                 } else if (trimmed === ':::end-quiz') {
                     inQuiz = false;
                     const html = buildQuizHtml(quizLines);
@@ -104,15 +338,52 @@
                     quizBlocks.push(html);
                     quizCounter++;
                     mdOut.push('<div id="quiz-placeholder-' + idx + '"></div>');
+
+                // --- analysis ---
+                } else if (trimmed === ':::analysis') {
+                    inAnalysis = true; analysisLines = [];
+                } else if (trimmed === ':::end-analysis') {
+                    inAnalysis = false;
+                    mdOut.push(buildAnalysisHtml(analysisLines));
+
+                // --- answer ---
+                } else if (trimmed === ':::answer') {
+                    inAnswer = true; answerLines = [];
+                } else if (trimmed === ':::end-answer') {
+                    inAnswer = false;
+                    mdOut.push(buildAnswerHtml(answerLines));
+
+                // --- 内部行 ---
                 } else if (inQuiz) {
                     quizLines.push(rawLine);
+                } else if (inAnalysis) {
+                    analysisLines.push(rawLine);
+                } else if (inAnswer) {
+                    answerLines.push(rawLine);
+
+                // --- 普通行：处理行内语法 ---
                 } else {
-                    mdOut.push(rawLine);
+                    // 行内答案：`[answer]内容[/answer]`
+                    let processed = rawLine.replace(/\[answer\]([\s\S]*?)\[\/answer\]/g, function(m, text) {
+                        const id = 'vt-answer-' + answerCounter++;
+                        return '<span class="answer-block vt-hidden" id="' + id + '" onclick="vtRevealSingle(\'answer\',\'' + id + '\')">' +
+                            '<span class="answer-block-label">✅ 答案</span>' +
+                            '<span class="answer-block-text">' + text.trim() + '</span>' +
+                            '</span>';
+                    });
+
+                    // 行内中文释义：`[zh]中文[/zh]`
+                    processed = processed.replace(/\[zh\]([\s\S]*?)\[\/zh\]/g, function(m, text) {
+                        const id = 'vt-vocab-' + vocabZhCounter++;
+                        return '<span class="vocab-zh vt-hidden" id="' + id + '" onclick="vtRevealSingle(\'vocab\',\'' + id + '\')">' + text.trim() + '</span>';
+                    });
+
+                    mdOut.push(processed);
                 }
             }
             md = mdOut.join('\n');
 
-            // :::exam-split 分栏布局
+            // :::exam-split 分栏布局（原有逻辑）
             md = md.replace(/:::exam-left\r?\n([\s\S]*?):::end-left[\r?\n\s]*:::exam-right\r?\n([\s\S]*?):::end-right/g, function(match, left, right) {
                 let processedLeft = left.replace(/\[\[([\s\S]*?)\]\]/g, function(m, content) {
                     const inner = content.replace(/%%([^%]+?)%%/g, '<span class="replace-word">$1</span>');
@@ -145,7 +416,7 @@
                 return placeholder;
             });
 
-            // @@定位句@@ 语法
+            // @@定位句@@ 语法（原有逻辑）
             md = md.replace(/@@([\s\S]*?)@@/g, function(match, content) {
                 locateCounter++;
                 const id = 'locate-' + locateCounter;
@@ -169,9 +440,72 @@
             return md;
         }
 
-        // ===== 自测题功能 =====
+        // ===== 显示控制状态 =====
+        const vtState = { analysis: false, answer: false, vocab: false };
+        // 单独手动揭示过的元素 id（全局隐藏时重置）
+        const vtManualRevealed = { analysis: new Set(), answer: new Set(), vocab: new Set() };
 
-        // 实时检查填空题输入
+        const vtLabels = {
+            analysis: ['解析 显示中',   '解析 已隐藏'],
+            answer:   ['答案 显示中',   '答案 已隐藏'],
+            vocab:    ['词汇中文 显示中','词汇中文 已隐藏'],
+        };
+        const vtChipIds = { analysis:'vtChipAnalysis', answer:'vtChipAnswer', vocab:'vtChipVocab' };
+        const vtLabelIds = { analysis:'vtLabelAnalysis', answer:'vtLabelAnswer', vocab:'vtLabelVocab' };
+        const vtSelectors = {
+            analysis: '.analysis-block',
+            answer:   '.answer-block',
+            vocab:    '.vocab-zh',
+        };
+
+        // 全局切换
+        function vtToggle(type) {
+            vtState[type] = !vtState[type];
+            // 全局隐藏时清除手动揭示记录
+            if (!vtState[type]) vtManualRevealed[type].clear();
+            _vtUpdateChip(type);
+            _vtApplyAll(type);
+        }
+
+        // 单个元素揭示（点击元素自身）
+        function vtRevealSingle(type, id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (vtManualRevealed[type].has(id)) {
+                // 再次点击 → 收起（仅在全局未开启时有效）
+                if (!vtState[type]) {
+                    vtManualRevealed[type].delete(id);
+                    el.classList.add('vt-hidden');
+                }
+            } else {
+                vtManualRevealed[type].add(id);
+                el.classList.remove('vt-hidden');
+                el.onclick = function() { vtRevealSingle(type, id); };
+            }
+        }
+
+        function _vtUpdateChip(type) {
+            const chip = document.getElementById(vtChipIds[type]);
+            const label = document.getElementById(vtLabelIds[type]);
+            chip.classList.toggle('on', vtState[type]);
+            label.textContent = vtLabels[type][vtState[type] ? 0 : 1];
+        }
+
+        function _vtApplyAll(type) {
+            document.querySelectorAll(vtSelectors[type]).forEach(function(el) {
+                if (vtState[type]) {
+                    el.classList.remove('vt-hidden');
+                    el.onclick = null;
+                } else {
+                    el.classList.add('vt-hidden');
+                    const id = el.id;
+                    el.onclick = function() { vtRevealSingle(type, id); };
+                }
+            });
+        }
+
+        // ===== 自测题功能（原有，不变）=====
+
         function checkQuizInput(input) {
             const answer = input.dataset.answer.trim().toLowerCase();
             const userVal = input.value.trim().toLowerCase();
@@ -184,7 +518,6 @@
             } else {
                 input.className = 'quiz-input';
             }
-            // 检查整题所有空是否都填对
             const item = input.closest('.quiz-item');
             const allInputs = item.querySelectorAll('.quiz-input');
             const allCorrect = Array.from(allInputs).every(inp => 
@@ -203,7 +536,6 @@
             }
         }
 
-        // 核对翻译题答案（模糊匹配）
         function checkTranslate(qId) {
             const item = document.getElementById(qId);
             const textarea = item.querySelector('.quiz-textarea');
@@ -218,7 +550,6 @@
                 return;
             }
 
-            // 关键词匹配：提取答案中的关键词（忽略冠词、介词等虚词）
             const stopwords = new Set(['a','an','the','is','are','was','were','of','in','on','at','to','for','and','or','but','it','that','this','i','they','we','you','he','she','by','with','from','as','be','been','being','have','has','had','do','does','did','will','would','can','could','should','may','might']);
             const answerWords = answer.split(/\s+/).filter(w => w && !stopwords.has(w.replace(/[^a-z]/g, '')));
             const userWords = new Set(userVal.split(/\s+/).map(w => w.replace(/[^a-z]/g, '')));
@@ -238,7 +569,6 @@
             fb.style.display = 'block';
         }
 
-        // 显示答案
         function showAnswer(qId, answer) {
             const item = document.getElementById(qId);
             const fb = item.querySelector('.quiz-feedback');
@@ -247,7 +577,6 @@
             fb.className = 'quiz-feedback hint';
         }
 
-        // 星标切换
         function toggleStar(qId) {
             const item = document.getElementById(qId);
             const btn = item.querySelector('.quiz-star-btn');
@@ -263,7 +592,6 @@
             }
         }
 
-        // 只显示重点题
         function filterStarred(blockId) {
             const block = document.getElementById(blockId);
             const btn = block.querySelector('.quiz-star-filter-btn');
@@ -283,7 +611,6 @@
             }
         }
 
-        // 重置题目
         function resetQuiz(blockId) {
             const block = document.getElementById(blockId);
             block.querySelectorAll('.quiz-input').forEach(inp => {
@@ -302,7 +629,7 @@
             });
         }
 
-        // ===== 定位句 / 替换词功能 =====
+        // ===== 定位句 / 替换词功能（原有，不变）=====
 
         function toggleLocate(id) {
             const wrapper = document.getElementById(id);
@@ -387,6 +714,9 @@
                 .then(md => {
                     locateCounter = 0;
                     quizCounter = 0;
+                    analysisCounter = 0;
+                    answerCounter = 0;
+                    vocabZhCounter = 0;
                     splitBlocks.length = 0;
                     quizBlocks.length = 0;
                     const processed = preprocessMarkdown(md);
@@ -396,7 +726,7 @@
                     });
                     document.getElementById('markdownContent').innerHTML = html;
 
-                    // 用 DOM 替换 quiz 占位符（避免 marked 对字符串的干扰）
+                    // 用 DOM 替换 quiz 占位符
                     quizBlocks.forEach((block, i) => {
                         const placeholder = document.getElementById('quiz-placeholder-' + i);
                         if (placeholder) {
@@ -414,6 +744,12 @@
                             item.querySelector('.quiz-star-btn').textContent = '⭐';
                         }
                     });
+
+                    // 判断是否有可控内容，有则显示工具栏
+                    const hasControlled = document.querySelector('.analysis-block, .answer-block, .vocab-zh');
+                    if (hasControlled) {
+                        document.getElementById('viewerToolbar').style.display = 'flex';
+                    }
                 })
                 .catch(err => {
                     document.getElementById('markdownContent').innerHTML = `
