@@ -173,6 +173,14 @@ const NOTES_CONFIG = {
             passage: "龙涎香",
             date: "2026-04-19",
         },
+        {
+            file: "note/reading/乐器训练大脑.md",
+            title: "乐器训练大脑 全题解析",
+            book: "阅读练习",
+            test: "P2",
+            passage: "乐器训练大脑",
+            date: "2026-04-20",
+        },
     ],
 
     // ===== 作文练习 =====
