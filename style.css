@@ -1255,6 +1255,35 @@ body {
     color: #3a0ca3;
 }
 
+/* ===== 注释显示按钮（[点击听]行旁边） ===== */
+.show-note-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid #b7e4df;
+    border-radius: 6px;
+    color: #2ec4b6;
+    font-size: 13px;
+    padding: 1px 7px;
+    margin-left: 6px;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1.6;
+}
+
+.show-note-btn:hover {
+    background: #eafaf8;
+    border-color: #2ec4b6;
+}
+
+.show-note-btn.show-answer-btn-active {
+    background: #eafaf8;
+    border-color: #2ec4b6;
+    color: #1a7a70;
+}
+
 /* ===== 填空反馈标签 ===== */
 .fill-feedback {
     font-size: 13px;

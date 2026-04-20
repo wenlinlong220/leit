@@ -111,7 +111,7 @@ function preprocessMarkdown(md) {
             line = line.replace(/\[点击听\]\((\d+)\)/g, (_, num) => `[点击听](${baseUrl}${num})`);
         }
 
-        // 如果这一行包含 ==...== 且是列表项（- 开头）
+        // ===== 情况1：含 ==词== 的句子行 =====
         if (/^(\s*-\s)(.*)==(.*?)==/.test(line)) {
             const answers = [];
             const processedLine = line.replace(/==(.*?)==/g, (_, word) => {
@@ -123,25 +123,47 @@ function preprocessMarkdown(md) {
                 return `<input class="fill-blank" id="${id}" data-answer="${w}" type="text" placeholder="?" style="width:${width}px" oninput="checkFill(this)" autocomplete="off" spellcheck="false">`;
             });
 
-            // 收集紧接在后面的注释行（缩进行，以空格+*开头，或纯缩进行）
+            // 收集紧接在后面的注释行
             const noteIds = [];
             noteGroupCounter++;
             const groupKey = 'fill-group-' + noteGroupCounter;
             let j = i + 1;
             while (j < lines.length && /^(\s{2,}|\t)/.test(lines[j]) && lines[j].trim() !== '') {
-                const noteId = 'fill-note-' + fillCounter + '-' + (j - i);
+                const noteId = 'fill-note-' + noteGroupCounter + '-' + (j - i);
                 noteIds.push(noteId);
-                // 把这行标记为隐藏注释行，用特殊占位符
                 result.push(`__FILL_NOTE__${noteId}__${lines[j]}`);
                 j++;
             }
-            i = j - 1; // 跳过已处理的注释行
+            i = j - 1;
 
             const ids = answers.map(a => a.id).join(',');
             fillNoteMap[groupKey] = noteIds;
             const answerBtn = `<button class="show-answer-btn" data-group="${groupKey}" data-ids="${ids}" onclick="showAnswers(this)" title="显示答案">👁 答案</button>`;
-
             result.push(processedLine + ' ' + answerBtn);
+
+        // ===== 情况2：[点击听] 行（后面可能有注释行） =====
+        } else if (/^(\s*-\s)\[点击听\]/.test(line)) {
+            noteGroupCounter++;
+            const groupKey = 'fill-group-' + noteGroupCounter;
+            const noteIds = [];
+            let j = i + 1;
+            while (j < lines.length && /^(\s{2,}|\t)/.test(lines[j]) && lines[j].trim() !== '') {
+                const noteId = 'fill-note-' + noteGroupCounter + '-' + (j - i);
+                noteIds.push(noteId);
+                result.push(`__FILL_NOTE__${noteId}__${lines[j]}`);
+                j++;
+            }
+            i = j - 1;
+            fillNoteMap[groupKey] = noteIds;
+
+            if (noteIds.length > 0) {
+                // 有注释行：在 [点击听] 行末尾加「显示注释」按钮
+                const noteBtn = `__NOTE_BTN__${groupKey}__`;
+                result.push(line + ' ' + noteBtn);
+            } else {
+                result.push(line);
+            }
+
         } else {
             result.push(line);
         }
@@ -153,11 +175,17 @@ function preprocessMarkdown(md) {
     return joined;
 }
 
-// 渲染后处理：把 __FILL_NOTE__ 标记转成隐藏 span
+// 渲染后处理：把 __FILL_NOTE__ 和 __NOTE_BTN__ 标记转成对应 HTML
 function postprocessHtml(html) {
-    return html.replace(/__FILL_NOTE__([^_]+)__(.+?)(?=<|$)/g, (_, noteId, content) => {
+    // 隐藏注释行
+    html = html.replace(/__FILL_NOTE__([^_]+)__(.+?)(?=<|$)/g, (_, noteId, content) => {
         return `<span class="fill-note" id="${noteId}" style="display:none">${content}</span>`;
     });
+    // 注释显示按钮（[点击听] 行末尾，只有注释没有填空时用）
+    html = html.replace(/__NOTE_BTN__([^_]+)__/g, (_, groupKey) => {
+        return `<button class="show-note-btn" data-group="${groupKey}" data-ids="" onclick="showAnswers(this)" title="查看注释">📝 注释</button>`;
+    });
+    return html;
 }
 
 // ========== 填空核对 ==========
@@ -198,7 +226,7 @@ function showAnswers(btn) {
         });
 
         btn.dataset.shown = '0';
-        btn.textContent = '👁 答案';
+        btn.textContent = btn.classList.contains('show-note-btn') ? '📝 注释' : '👁 答案';
         btn.classList.remove('show-answer-btn-active');
     } else {
         // ===== 展开：显示对错和注释 =====
