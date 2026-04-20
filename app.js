@@ -79,8 +79,69 @@ function setupMarked() {
 }
 
 // ========== Markdown 预处理 ==========
+// 用于计数，保证每个输入框ID唯一
+let fillCounter = 0;
+
 function preprocessMarkdown(md) {
-    return md.replace(/==(.*?)==/g, '<mark>$1</mark>');
+    // 把列表项中含有 ==词== 的行，转成挖空输入框
+    // 策略：先处理整行，再替换 ==词==
+    fillCounter = 0;
+
+    // 逐行处理
+    const lines = md.split('\n');
+    const result = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // 如果这一行包含 ==...== 且是列表项（- 开头）
+        if (/^(\s*-\s)(.*)==(.*?)==/.test(line)) {
+            // 收集这行所有答案，生成 data-answers 属性
+            const answers = [];
+            const processedLine = line.replace(/==(.*?)==/g, (_, word) => {
+                fillCounter++;
+                const id = 'fill-' + fillCounter;
+                const w = word.trim();
+                answers.push({ id, word: w });
+                const width = Math.max(w.length * 11 + 16, 60);
+                return `<input class="fill-blank" id="${id}" data-answer="${w}" type="text" placeholder="?" style="width:${width}px" oninput="checkFill(this)" autocomplete="off" spellcheck="false">`;
+            });
+
+            // 生成答案按钮（data-fills 存所有 id）
+            const ids = answers.map(a => a.id).join(',');
+            const answerBtn = `<button class="show-answer-btn" onclick="showAnswers('${ids}')" title="显示答案">👁</button>`;
+
+            // 把原行 ==...== 替换掉，末尾加答案按钮
+            result.push(processedLine.replace(/^(\s*-\s)/, `$1`) + ' ' + answerBtn);
+        } else {
+            result.push(line);
+        }
+    }
+
+    return result.join('\n');
+}
+
+// ========== 填空核对 ==========
+function checkFill(input) {
+    const answer = input.dataset.answer || '';
+    if (input.value.trim().toLowerCase() === answer.toLowerCase()) {
+        input.classList.add('fill-correct');
+        input.classList.remove('fill-wrong');
+    } else {
+        input.classList.remove('fill-correct');
+        input.classList.remove('fill-wrong');
+    }
+}
+
+// ========== 显示答案 ==========
+function showAnswers(ids) {
+    ids.split(',').forEach(id => {
+        const input = document.getElementById(id);
+        if (!input) return;
+        input.value = input.dataset.answer;
+        input.classList.add('fill-correct');
+        input.classList.remove('fill-wrong');
+    });
 }
 
 // ========== 渲染 Markdown ==========

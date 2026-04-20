@@ -1191,3 +1191,60 @@ body {
     opacity: 0.8;
     font-size: 12px;
 }
+
+/* ===== 精听填空输入框 ===== */
+.fill-blank {
+    display: inline-block;
+    border: none;
+    border-bottom: 2px solid #4361ee;
+    background: transparent;
+    font-size: inherit;
+    font-family: inherit;
+    color: #1a1a2e;
+    padding: 0 4px;
+    margin: 0 2px;
+    outline: none;
+    vertical-align: baseline;
+    transition: border-color 0.2s, background 0.2s;
+    border-radius: 3px 3px 0 0;
+    min-width: 60px;
+}
+
+.fill-blank:focus {
+    background: #f0f4ff;
+    border-bottom-color: #3a0ca3;
+}
+
+.fill-blank.fill-correct {
+    border-bottom-color: #2ec4b6;
+    background: #eafaf8;
+    color: #1a7a70;
+}
+
+.fill-blank.fill-wrong {
+    border-bottom-color: #e63946;
+    background: #fff0f1;
+}
+
+/* ===== 显示答案按钮 ===== */
+.show-answer-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid #c5d0ff;
+    border-radius: 6px;
+    color: #4361ee;
+    font-size: 13px;
+    padding: 1px 7px;
+    margin-left: 6px;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1.6;
+}
+
+.show-answer-btn:hover {
+    background: #eef1ff;
+    border-color: #4361ee;
+}
