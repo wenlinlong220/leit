@@ -1248,3 +1248,44 @@ body {
     background: #eef1ff;
     border-color: #4361ee;
 }
+
+.show-answer-btn-active {
+    background: #eef1ff;
+    border-color: #4361ee;
+    color: #3a0ca3;
+}
+
+/* ===== 填空反馈标签 ===== */
+.fill-feedback {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 2px;
+    vertical-align: middle;
+}
+
+.fill-fb-correct {
+    color: #2ec4b6;
+}
+
+.fill-fb-wrong {
+    color: #e63946;
+}
+
+.fill-correct-ans {
+    background: #eafaf8;
+    color: #1a7a70;
+    border-bottom: 2px solid #2ec4b6;
+    padding: 0 4px;
+    border-radius: 3px 3px 0 0;
+    font-weight: 700;
+}
+
+/* 注释行（点答案后显示） */
+.fill-note {
+    display: block;
+    margin-left: 1.5em;
+    color: #666;
+    font-size: 14px;
+    font-style: italic;
+    line-height: 1.7;
+}

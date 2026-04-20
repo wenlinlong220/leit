@@ -81,22 +81,38 @@ function setupMarked() {
 // ========== Markdown 预处理 ==========
 // 用于计数，保证每个输入框ID唯一
 let fillCounter = 0;
+// 记录每个答案按钮对应的注释行组 key → [noteId, ...]
+const fillNoteMap = {};
 
 function preprocessMarkdown(md) {
-    // 把列表项中含有 ==词== 的行，转成挖空输入框
-    // 策略：先处理整行，再替换 ==词==
     fillCounter = 0;
 
-    // 逐行处理
+    // 解析 @base: url 宏定义（笔记顶部定义一次，[点击听](数字) 自动展开）
+    let baseUrl = '';
+    const macroLineRegex = /^@base:\s*(.+)/;
+
     const lines = md.split('\n');
     const result = [];
+    let noteGroupCounter = 0;
 
     for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+        let line = lines[i];
+
+        // 解析宏定义行（输出为注释，不显示在页面）
+        const macroMatch = line.match(macroLineRegex);
+        if (macroMatch) {
+            baseUrl = macroMatch[1].trim();
+            result.push(`<!-- @base: ${baseUrl} -->`);
+            continue;
+        }
+
+        // 展开 [点击听](纯数字) → [点击听](baseUrl + 数字)
+        if (baseUrl) {
+            line = line.replace(/\[点击听\]\((\d+)\)/g, (_, num) => `[点击听](${baseUrl}${num})`);
+        }
 
         // 如果这一行包含 ==...== 且是列表项（- 开头）
         if (/^(\s*-\s)(.*)==(.*?)==/.test(line)) {
-            // 收集这行所有答案，生成 data-answers 属性
             const answers = [];
             const processedLine = line.replace(/==(.*?)==/g, (_, word) => {
                 fillCounter++;
@@ -107,18 +123,41 @@ function preprocessMarkdown(md) {
                 return `<input class="fill-blank" id="${id}" data-answer="${w}" type="text" placeholder="?" style="width:${width}px" oninput="checkFill(this)" autocomplete="off" spellcheck="false">`;
             });
 
-            // 生成答案按钮（data-fills 存所有 id）
-            const ids = answers.map(a => a.id).join(',');
-            const answerBtn = `<button class="show-answer-btn" onclick="showAnswers('${ids}')" title="显示答案">👁</button>`;
+            // 收集紧接在后面的注释行（缩进行，以空格+*开头，或纯缩进行）
+            const noteIds = [];
+            noteGroupCounter++;
+            const groupKey = 'fill-group-' + noteGroupCounter;
+            let j = i + 1;
+            while (j < lines.length && /^(\s{2,}|\t)/.test(lines[j]) && lines[j].trim() !== '') {
+                const noteId = 'fill-note-' + fillCounter + '-' + (j - i);
+                noteIds.push(noteId);
+                // 把这行标记为隐藏注释行，用特殊占位符
+                result.push(`__FILL_NOTE__${noteId}__${lines[j]}`);
+                j++;
+            }
+            i = j - 1; // 跳过已处理的注释行
 
-            // 把原行 ==...== 替换掉，末尾加答案按钮
-            result.push(processedLine.replace(/^(\s*-\s)/, `$1`) + ' ' + answerBtn);
+            const ids = answers.map(a => a.id).join(',');
+            fillNoteMap[groupKey] = noteIds;
+            const answerBtn = `<button class="show-answer-btn" data-group="${groupKey}" data-ids="${ids}" onclick="showAnswers(this)" title="显示答案">👁 答案</button>`;
+
+            result.push(processedLine + ' ' + answerBtn);
         } else {
             result.push(line);
         }
     }
 
-    return result.join('\n');
+    // 把注释行标记转成隐藏的 HTML span（先 join 成字符串，后续 marked 处理后再替换）
+    const joined = result.join('\n');
+    // 注释行在 marked 处理前用特殊格式，暂时原样保留，marked 处理后再替换
+    return joined;
+}
+
+// 渲染后处理：把 __FILL_NOTE__ 标记转成隐藏 span
+function postprocessHtml(html) {
+    return html.replace(/__FILL_NOTE__([^_]+)__(.+?)(?=<|$)/g, (_, noteId, content) => {
+        return `<span class="fill-note" id="${noteId}" style="display:none">${content}</span>`;
+    });
 }
 
 // ========== 填空核对 ==========
@@ -133,15 +172,81 @@ function checkFill(input) {
     }
 }
 
-// ========== 显示答案 ==========
-function showAnswers(ids) {
-    ids.split(',').forEach(id => {
-        const input = document.getElementById(id);
-        if (!input) return;
-        input.value = input.dataset.answer;
-        input.classList.add('fill-correct');
-        input.classList.remove('fill-wrong');
-    });
+// ========== 显示/隐藏答案 + 对错 + 注释（切换） ==========
+function showAnswers(btn) {
+    const ids = btn.dataset.ids || '';
+    const groupKey = btn.dataset.group || '';
+    const isShown = btn.dataset.shown === '1';
+
+    if (isShown) {
+        // ===== 收起：隐藏反馈和注释，清除样式 =====
+        ids.split(',').forEach(id => {
+            const input = document.getElementById(id);
+            if (!input) return;
+            // 清除反馈
+            const feedback = document.getElementById('fb-' + id);
+            if (feedback) feedback.remove();
+            // 清除颜色（保留用户输入）
+            input.classList.remove('fill-correct', 'fill-wrong');
+        });
+
+        // 隐藏注释行
+        const noteIds = fillNoteMap[groupKey] || [];
+        noteIds.forEach(noteId => {
+            const el = document.getElementById(noteId);
+            if (el) el.style.display = 'none';
+        });
+
+        btn.dataset.shown = '0';
+        btn.textContent = '👁 答案';
+        btn.classList.remove('show-answer-btn-active');
+    } else {
+        // ===== 展开：显示对错和注释 =====
+        ids.split(',').forEach(id => {
+            const input = document.getElementById(id);
+            if (!input) return;
+            const answer = input.dataset.answer || '';
+            const userVal = input.value.trim();
+            const correct = userVal.toLowerCase() === answer.toLowerCase();
+
+            // 在 input 后插入反馈（避免重复插入）
+            let feedback = document.getElementById('fb-' + id);
+            if (!feedback) {
+                feedback = document.createElement('span');
+                feedback.id = 'fb-' + id;
+                feedback.className = 'fill-feedback';
+                input.after(feedback);
+            }
+
+            if (!userVal) {
+                input.value = answer;
+                input.classList.add('fill-correct');
+                input.classList.remove('fill-wrong');
+                feedback.textContent = '';
+            } else if (correct) {
+                input.classList.add('fill-correct');
+                input.classList.remove('fill-wrong');
+                feedback.textContent = ' ✅';
+                feedback.className = 'fill-feedback fill-fb-correct';
+            } else {
+                input.classList.add('fill-wrong');
+                input.classList.remove('fill-correct');
+                feedback.innerHTML = ` ❌ <span class="fill-correct-ans">${answer}</span>`;
+                feedback.className = 'fill-feedback fill-fb-wrong';
+            }
+        });
+
+        // 显示注释行
+        const noteIds = fillNoteMap[groupKey] || [];
+        noteIds.forEach(noteId => {
+            const el = document.getElementById(noteId);
+            if (el) el.style.display = '';
+        });
+
+        btn.dataset.shown = '1';
+        btn.textContent = '🙈 隐藏';
+        btn.classList.add('show-answer-btn-active');
+    }
 }
 
 // ========== 渲染 Markdown ==========
@@ -149,7 +254,8 @@ function renderMarkdown(mdText) {
     state.audioCounter = 0;
     state.teacherCounter = 0;
     const processed = preprocessMarkdown(mdText);
-    const html = marked.parse(processed);
+    let html = marked.parse(processed);
+    html = postprocessHtml(html);
     dom.markdownContent.innerHTML = html;
 }
 
