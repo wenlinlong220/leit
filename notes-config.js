@@ -189,6 +189,22 @@ const NOTES_CONFIG = {
             passage: "乐器训练大脑",
             date: "2026-04-20",
         },
+        {
+            file: "note/reading/新西兰草药.md",
+            title: "新西兰草药 全题解析",
+            book: "阅读练习",
+            test: "P2",
+            passage: "新西兰草药",
+            date: "2026-04-23",
+        },
+        {
+            file: "note/reading/机器人朋友.md",
+            title: "机器人朋友 全题解析",
+            book: "阅读练习",
+            test: "P2",
+            passage: "机器人朋友",
+            date: "2026-04-22",
+        },
     ],
 
     // ===== 作文练习 =====
