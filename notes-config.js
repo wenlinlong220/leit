@@ -93,7 +93,15 @@ const NOTES_CONFIG = {
             book: "剑桥雅思17",
             test: "Test 3",
             section: "Section 1",
-            date: "2026-04-06",
+            date: "2026-04-22",
+        },
+        {
+            file: "note/listening/camb_C17_T4_S1",
+            title: "剑17 Test4 Section1",
+            book: "剑桥雅思17",
+            test: "Test 4",
+            section: "Section 1",
+            date: "2026-04-24",
         },
         // 添加更多精听笔记（复制下方模板，修改参数即可）：
         // {
