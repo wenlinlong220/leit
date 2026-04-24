@@ -22,12 +22,12 @@
  *    :::analysis
  *    复盘：这里的考点是...
  *    考点：xxx <=> yyy
- *    :::end-analysis
+ *    :::end-analysis   （或直接用 ::: 结束）
  *
  * 2. 【答案块】可隐藏的答案（多行）
  *    :::answer
  *    both / YES / hardens
- *    :::end-answer
+ *    :::end-answer      （或直接用 ::: 结束）
  *
  *    也可以行内使用（适合放在句子末尾）：
  *    - Q1 答案是 [answer]both[/answer]
@@ -212,6 +212,14 @@ const NOTES_CONFIG = {
             test: "P2",
             passage: "机器人朋友",
             date: "2026-04-22",
+        },
+        {
+            file: "note/reading/法律的意义.md",
+            title: "The Importance of Law",
+            book: "阅读练习",
+            test: "P2",
+            passage: "法律的意义",
+            date: "2026-04-24",
         },
     ],
 

@@ -353,6 +353,23 @@
                     inAnswer = false;
                     mdOut.push(buildAnswerHtml(answerLines));
 
+                // --- 兼容裸 ::: 作为当前块的结束标记 ---
+                } else if (trimmed === ':::' && (inAnalysis || inAnswer || inQuiz)) {
+                    if (inAnalysis) {
+                        inAnalysis = false;
+                        mdOut.push(buildAnalysisHtml(analysisLines));
+                    } else if (inAnswer) {
+                        inAnswer = false;
+                        mdOut.push(buildAnswerHtml(answerLines));
+                    } else if (inQuiz) {
+                        inQuiz = false;
+                        const html = buildQuizHtml(quizLines);
+                        const idx = quizBlocks.length;
+                        quizBlocks.push(html);
+                        quizCounter++;
+                        mdOut.push('<div id="quiz-placeholder-' + idx + '"></div>');
+                    }
+
                 // --- 内部行 ---
                 } else if (inQuiz) {
                     quizLines.push(rawLine);
@@ -725,6 +742,17 @@
                         html = html.replace('<!--EXAM_SPLIT_' + i + '-->', block);
                     });
                     document.getElementById('markdownContent').innerHTML = html;
+
+                    // 修正图片相对路径：基于笔记文件所在目录
+                    const noteDir = file.substring(0, file.lastIndexOf('/') + 1);
+                    if (noteDir) {
+                        document.querySelectorAll('#markdownContent img').forEach(function(img) {
+                            const src = img.getAttribute('src');
+                            if (src && !src.startsWith('http') && !src.startsWith('//') && !src.startsWith('/') && !src.startsWith('data:')) {
+                                img.src = noteDir + src;
+                            }
+                        });
+                    }
 
                     // 用 DOM 替换 quiz 占位符
                     quizBlocks.forEach((block, i) => {
