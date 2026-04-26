@@ -221,6 +221,14 @@ const NOTES_CONFIG = {
             passage: "法律的意义",
             date: "2026-04-24",
         },
+        {
+            file: "note/reading/心灵的音乐.md",
+            title: "Mind Music",
+            book: "阅读练习",
+            test: "P2",
+            passage: "Mind Music",
+            date: "2026-04-26",
+        },
     ],
 
     // ===== 作文练习 =====
