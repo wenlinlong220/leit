@@ -103,6 +103,14 @@ const NOTES_CONFIG = {
             section: "Section 1",
             date: "2026-04-24",
         },
+        {
+            file: "note/listening/camb_C18_T1_S1",
+            title: "剑18 Test1 Section1",
+            book: "剑桥雅思18",
+            test: "Test 1",
+            section: "Section 1",
+            date: "2026-04-25",
+        },
         // 添加更多精听笔记（复制下方模板，修改参数即可）：
         // {
         //     file: "note/listening/camb_C16_T1_S2",
